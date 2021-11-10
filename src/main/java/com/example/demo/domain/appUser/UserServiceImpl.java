@@ -102,7 +102,9 @@ public class UserServiceImpl implements UserService, UserDetailsService {
         return userRepository.findAll();
     }
 
-
-
-
+    @Override
+    public String deleteUser(UUID uuid) {
+        userRepository.deleteUserById(uuid);
+        return "DELETED";
+    }
 }
