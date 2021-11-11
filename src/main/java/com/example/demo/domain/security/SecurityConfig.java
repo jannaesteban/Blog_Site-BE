@@ -26,11 +26,10 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
-        http.httpBasic().and()
-                .authorizeRequests()
-                .antMatchers("/**").hasAuthority("READ")
-                .and()
-                // some more method calls
-                .formLogin();
+        http.httpBasic().and().csrf().disable()
+                .authorizeRequests().anyRequest().authenticated();
+//                .antMatchers("/**").permitAll()
+//                .antMatchers("/api/*").permitAll()
+
     }
  }

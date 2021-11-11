@@ -104,7 +104,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 
     @Override
     public String deleteUser(UUID uuid) {
-        userRepository.deleteUserById(uuid);
+        userRepository.deleteById(uuid);
         return "DELETED";
     }
 }
