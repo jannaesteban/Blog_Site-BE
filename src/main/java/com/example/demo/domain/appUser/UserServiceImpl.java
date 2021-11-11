@@ -4,6 +4,7 @@ import com.example.demo.domain.role.Role;
 import com.example.demo.domain.role.RoleRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.crossstore.ChangeSetPersister;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -87,6 +88,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     public User getUser(String username) {
         return userRepository.findByUsername(username);
     }
+
     @Override
     public Optional<User> findById(UUID id) throws InstanceNotFoundException{
         if (userRepository.existsById(id)){
@@ -102,6 +104,23 @@ public class UserServiceImpl implements UserService, UserDetailsService {
         return userRepository.findAll();
     }
 
+    @Override
+    public User editUserInformationById(User editedUser, UUID id) throws InstanceNotFoundException{
+     if (userRepository.existsById(id)){
+         return userRepository.findById(id).map(user -> {
+             user.setEmail(editedUser.getEmail());
+             user.setPassword(editedUser.getPassword());
+             user.setUsername(editedUser.getUsername());
+             return userRepository.save(user);
+         }).orElseGet(() -> {
+             editedUser.setId(id);
+             return userRepository.save(editedUser);
+         });
+     }else{
+          throw  new InstanceNotFoundException("User not found");
+     }
+
+    }
 
 
 
