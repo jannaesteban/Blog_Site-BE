@@ -18,7 +18,9 @@ import javax.transaction.Transactional;
 
 import java.util.*;
 
-@Service @RequiredArgsConstructor @Transactional
+@Service
+@RequiredArgsConstructor
+@Transactional
 public class UserServiceImpl implements UserService, UserDetailsService {
 
     @Autowired
@@ -33,10 +35,9 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 
         User user = userRepository.findByUsername(username);
 
-        if (user == null){
+        if (user == null) {
             throw new UsernameNotFoundException("User not found");
-        }
-        else {
+        } else {
 //          Construct a valid set of Authorities (needs to implement Granted Authorities)
             Collection<SimpleGrantedAuthority> authorities = new ArrayList<>();
             user.getRoles().forEach(roles -> {
@@ -53,7 +54,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
             Collection<Role> roles) {
         List<GrantedAuthority> authorities
                 = new ArrayList<>();
-        for (Role role: roles) {
+        for (Role role : roles) {
             authorities.add(new SimpleGrantedAuthority(role.getName()));
             role.getAuthorities().stream()
                     .map(authority -> new SimpleGrantedAuthority(authority.getName()))
@@ -63,11 +64,10 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     }
 
     @Override
-    public User saveUser(User user) throws InstanceAlreadyExistsException{
-        if (userRepository.findByUsername(user.getUsername()) != null){
+    public User saveUser(User user) throws InstanceAlreadyExistsException {
+        if (userRepository.findByUsername(user.getUsername()) != null) {
             throw new InstanceAlreadyExistsException("User already exists");
-        }
-        else {
+        } else {
             return userRepository.save(user);
         }
     }
@@ -90,11 +90,10 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     }
 
     @Override
-    public Optional<User> findById(UUID id) throws InstanceNotFoundException{
-        if (userRepository.existsById(id)){
+    public Optional<User> findById(UUID id) throws InstanceNotFoundException {
+        if (userRepository.existsById(id)) {
             return userRepository.findById(id);
-        }
-        else{
+        } else {
             throw new InstanceNotFoundException("User not found");
         }
     }
@@ -105,23 +104,25 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     }
 
     @Override
-    public User editUserInformationById(User editedUser, UUID id) throws InstanceNotFoundException{
-     if (userRepository.existsById(id)){
-         return userRepository.findById(id).map(user -> {
-             user.setEmail(editedUser.getEmail());
-             user.setPassword(editedUser.getPassword());
-             user.setUsername(editedUser.getUsername());
-             return userRepository.save(user);
-         }).orElseGet(() -> {
-             editedUser.setId(id);
-             return userRepository.save(editedUser);
-         });
-     }else{
-          throw  new InstanceNotFoundException("User not found");
-     }
-
+    public String deleteUser(UUID uuid) {
+        userRepository.deleteById(uuid);
+        return "DELETED";
     }
 
-
-
+    @Override
+    public User editUserInformationById(User editedUser, UUID id) throws InstanceNotFoundException {
+        if (userRepository.existsById(id)) {
+            return userRepository.findById(id).map(user -> {
+                user.setEmail(editedUser.getEmail());
+                user.setPassword(editedUser.getPassword());
+                user.setUsername(editedUser.getUsername());
+                return userRepository.save(user);
+            }).orElseGet(() -> {
+                editedUser.setId(id);
+                return userRepository.save(editedUser);
+            });
+        } else {
+            throw new InstanceNotFoundException("User not found");
+        }
+    }
 }

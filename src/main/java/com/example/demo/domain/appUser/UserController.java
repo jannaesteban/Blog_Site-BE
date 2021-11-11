@@ -24,12 +24,18 @@ private final UserService userService;
     }
 
     @GetMapping("/users")
-    @PreAuthorize("hasAuthority('ALL_PRIVILEGES')")
+    @PreAuthorize("hasAuthority('ALL_PPRIVILEGES')")
     public ResponseEntity<Collection<User>> findAll() {
         return new ResponseEntity<Collection<User>>(userService.findAll(), HttpStatus.OK);
     }
 
-    @GetMapping("/users/{id}")
+    @DeleteMapping("user/{uuid}")
+    @PreAuthorize("hasAuthority('ALL_PPRIVILEGES')")
+    public ResponseEntity<String> deleteUser(@PathVariable("uuid") UUID uuid){
+        return ResponseEntity.ok().body(userService.deleteUser(uuid));
+    }
+
+    @GetMapping("/user/{id}")
     public ResponseEntity<Optional<User>> getUserById(@PathVariable UUID id) throws InstanceNotFoundException {
         return ResponseEntity.ok().body(userService.findById(id));
     }
@@ -39,8 +45,5 @@ private final UserService userService;
     public ResponseEntity<User> editUserById(@RequestBody User editedUser, @PathVariable UUID id) throws InstanceNotFoundException {
         return ResponseEntity.ok().body(userService.editUserInformationById(editedUser, id));
     }
-
-
-
 
 }
