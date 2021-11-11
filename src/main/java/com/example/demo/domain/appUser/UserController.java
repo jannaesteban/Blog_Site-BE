@@ -24,13 +24,13 @@ private final UserService userService;
     }
 
     @GetMapping("/users")
-    @PreAuthorize("hasAuthority('ALL_PPRIVILEGES')")
+    @PreAuthorize("hasAuthority('ALL_PRIVILEGES')")
     public ResponseEntity<Collection<User>> findAll() {
         return new ResponseEntity<Collection<User>>(userService.findAll(), HttpStatus.OK);
     }
 
     @DeleteMapping("user/{uuid}")
-    @PreAuthorize("hasAuthority('ALL_PPRIVILEGES')")
+    @PreAuthorize("hasAuthority('ALL_PRIVILEGES')")
     public ResponseEntity<String> deleteUser(@PathVariable("uuid") UUID uuid){
         return ResponseEntity.ok().body(userService.deleteUser(uuid));
     }
