@@ -24,6 +24,6 @@
 
 /spring skeleton/build/
 /spring skeleton/.gradle/
-/.gradle/
-/build/
-/.idea/
+/.gradle/*
+/build/*
+/.idea/*
