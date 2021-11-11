@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.Collection;
 import java.util.UUID;
 
-@RestController @RequestMapping("/api")
+@RestController @RequestMapping("/Blog-Site")
 @RequiredArgsConstructor
 public class UserController {
 //    ADD YOUR ENDPOINT MAPPINGS HERE

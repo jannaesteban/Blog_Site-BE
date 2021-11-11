@@ -5,7 +5,7 @@ INSERT INTO public.authority (id, name) VALUES ('90678825-af11-48ec-9ae8-ca1f459
 INSERT INTO public.authority (id, name) VALUES ('78904317-e48e-493d-abdd-8f83be72f584', 'CREATE');
 INSERT INTO public.authority (id, name) VALUES ('5b2d3ebe-f382-4bab-89f3-a2b4c7727791', 'DELETE');
 INSERT INTO public.authority (id, name) VALUES ('9ab874e1-94f3-4f04-bd65-773396fcef9a', 'UPDATE');
-INSERT INTO public.authority (id, name) VALUES ('293cb7c7-8dd7-492b-ad93-0223cf5c8e4a', 'ALL_PPRIVILEGES');
+INSERT INTO public.authority (id, name) VALUES ('293cb7c7-8dd7-492b-ad93-0223cf5c8e4a', 'ALL_PRIVILEGES');
 INSERT INTO public.role_authorities (role_id, authority_id) VALUES ('3b24cce9-1bda-493e-84d3-41cb35d539de', '90678825-af11-48ec-9ae8-ca1f4596230a');
 INSERT INTO public.role_authorities (role_id, authority_id) VALUES ('3b24cce9-1bda-493e-84d3-41cb35d539de', '78904317-e48e-493d-abdd-8f83be72f584');
 INSERT INTO public.role_authorities (role_id, authority_id) VALUES ('3b24cce9-1bda-493e-84d3-41cb35d539de', '5b2d3ebe-f382-4bab-89f3-a2b4c7727791');

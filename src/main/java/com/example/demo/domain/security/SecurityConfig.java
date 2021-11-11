@@ -24,6 +24,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
                  auth.userDetailsService(userDetailsService).passwordEncoder(passwordEncoder);
      }
 
+<<<<<<< HEAD
     @Override
     protected void configure(HttpSecurity http) throws Exception {
         http.httpBasic().and().csrf().disable()
@@ -32,4 +33,15 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 //                .antMatchers("/api/*").permitAll()
 
     }
+=======
+     @Override
+     protected void configure(HttpSecurity http) throws Exception {
+         http.httpBasic().and()
+                 .authorizeRequests()
+                 .antMatchers("/**").hasAuthority("ALL_PRIVILEGES")
+                 .antMatchers("/Blog-Site/users/{id}").permitAll()
+                 .and()
+                 .formLogin();
+     }
+>>>>>>> develop
  }
