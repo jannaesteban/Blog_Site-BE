@@ -28,7 +28,7 @@ private final UserService userService;
         return new ResponseEntity<Collection<User>>(userService.findAll(), HttpStatus.OK);
     }
 
-    @DeleteMapping("/{uuid}")
+    @DeleteMapping("user/{uuid}")
     @PreAuthorize("hasAuthority('ALL_PPRIVILEGES')")
     public ResponseEntity<String> deleteUser(@PathVariable("uuid") UUID uuid){
         return ResponseEntity.ok().body(userService.deleteUser(uuid));
