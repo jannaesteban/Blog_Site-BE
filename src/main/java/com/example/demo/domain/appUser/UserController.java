@@ -8,6 +8,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import javax.management.InstanceNotFoundException;
+import java.security.Principal;
 import java.util.Collection;
 import java.util.Optional;
 import java.util.UUID;
@@ -29,9 +30,9 @@ private final UserService userService;
         return new ResponseEntity<Collection<User>>(userService.findAll(), HttpStatus.OK);
     }
 
-    @DeleteMapping("user/{uuid}")
+    @DeleteMapping("/user/{id}")
     @PreAuthorize("hasAuthority('ALL_PRIVILEGES')")
-    public ResponseEntity<String> deleteUser(@PathVariable("uuid") UUID uuid){
+    public ResponseEntity<String> deleteUser(@PathVariable("id") UUID uuid){
         return ResponseEntity.ok().body(userService.deleteUser(uuid));
     }
 
@@ -41,9 +42,9 @@ private final UserService userService;
     }
 
     @PutMapping("/user/{id}")
-    @PreAuthorize("hasAuthority('ALL_PRIVILEGES')")
-    public ResponseEntity<User> editUserById(@RequestBody User editedUser, @PathVariable UUID id) throws InstanceNotFoundException {
-        return ResponseEntity.ok().body(userService.editUserInformationById(editedUser, id));
+    @PreAuthorize("hasAuthority('ALL_PRIVILEGES') " + "|| hasRole('USER')")
+    public ResponseEntity<User> editUserById(Principal currentUser, @RequestBody User editedUser, @PathVariable UUID id) throws InstanceNotFoundException {
+        return ResponseEntity.ok().body(userService.editUserInformationById(currentUser, editedUser, id));
     }
 
 }

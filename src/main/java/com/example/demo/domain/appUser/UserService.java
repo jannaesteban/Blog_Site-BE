@@ -5,6 +5,7 @@ import com.example.demo.domain.role.Role;
 
 import javax.management.InstanceAlreadyExistsException;
 import javax.management.InstanceNotFoundException;
+import java.security.Principal;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -17,5 +18,5 @@ public interface UserService {
     Optional<User> findById(UUID id) throws InstanceNotFoundException;
     List<User> findAll();
     String deleteUser(UUID uuid);
-    User editUserInformationById(User editedUser, UUID id) throws InstanceNotFoundException;
+    User editUserInformationById(Principal currentUser, User editedUser, UUID id) throws InstanceNotFoundException;
 }

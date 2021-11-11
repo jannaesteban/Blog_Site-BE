@@ -16,6 +16,7 @@ import javax.management.InstanceAlreadyExistsException;
 import javax.management.InstanceNotFoundException;
 import javax.transaction.Transactional;
 
+import java.security.Principal;
 import java.util.*;
 
 @Service
@@ -110,8 +111,8 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     }
 
     @Override
-    public User editUserInformationById(User editedUser, UUID id) throws InstanceNotFoundException {
-        if (userRepository.existsById(id)) {
+    public User editUserInformationById(Principal currentUser, User editedUser, UUID id) throws InstanceNotFoundException {
+        if (userRepository.existsById(id) || userRepository.getById(id).getId().equals(currentUser)) {
             return userRepository.findById(id).map(user -> {
                 user.setEmail(editedUser.getEmail());
                 user.setPassword(editedUser.getPassword());
