@@ -7,7 +7,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import javax.management.InstanceNotFoundException;
 import java.util.Collection;
+import java.util.Optional;
 import java.util.UUID;
 
 @RestController @RequestMapping("/api")
@@ -21,10 +23,17 @@ private final UserService userService;
         return ResponseEntity.ok().body("Hello World");
     }
 
-
     @GetMapping("/users")
+    @PreAuthorize("hasAuthority('ALL_PRIVILEGES')")
     public ResponseEntity<Collection<User>> findAll() {
         return new ResponseEntity<Collection<User>>(userService.findAll(), HttpStatus.OK);
+    }
+
+
+    @PutMapping("/user/{id}")
+    @PreAuthorize("hasAuthority('ALL_PRIVILEGES')")
+    public ResponseEntity<User> editUserById(@RequestBody User editedUser, @PathVariable UUID id) throws InstanceNotFoundException {
+        return ResponseEntity.ok().body(userService.editUserInformationById(editedUser, id));
     }
 
 }
