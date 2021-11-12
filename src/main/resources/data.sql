@@ -1,6 +1,6 @@
 INSERT INTO public.role (id, name) VALUES ('58110d15-0128-40f1-a39b-ac61519af86e', 'ADMIN');
 INSERT INTO public.role (id, name) VALUES ('3b24cce9-1bda-493e-84d3-41cb35d539de', 'USER');
-INSERT INTO public.role (id, name) VALUES ('03336c98-b9a2-4e51-865f-91dd93ce6542', 'GUEST');
+INSERT INTO public.role (id, name) VALUES ('03336c98-b9a2-4e51-865f-91dd93ce6542', 'SUPERVISOR');
 INSERT INTO public.authority (id, name) VALUES ('90678825-af11-48ec-9ae8-ca1f4596230a', 'READ_OWN');
 INSERT INTO public.authority (id, name) VALUES ('8bc470e9-308e-4e34-907e-b17e01a729ba', 'READ_ALL');
 INSERT INTO public.authority (id, name) VALUES ('5b2d3ebe-f382-4bab-89f3-a2b4c7727791', 'DELETE_OWN');
@@ -11,6 +11,8 @@ INSERT INTO public.role_authorities (role_id, authority_id) VALUES ('3b24cce9-1b
 INSERT INTO public.role_authorities (role_id, authority_id) VALUES ('3b24cce9-1bda-493e-84d3-41cb35d539de', '5b2d3ebe-f382-4bab-89f3-a2b4c7727791');
 INSERT INTO public.role_authorities (role_id, authority_id) VALUES ('3b24cce9-1bda-493e-84d3-41cb35d539de', '9ab874e1-94f3-4f04-bd65-773396fcef9a');
 INSERT INTO public.role_authorities (role_id, authority_id) VALUES ('03336c98-b9a2-4e51-865f-91dd93ce6542', '90678825-af11-48ec-9ae8-ca1f4596230a');
+INSERT INTO public.role_authorities (role_id, authority_id) VALUES ('03336c98-b9a2-4e51-865f-91dd93ce6542', '8bc470e9-308e-4e34-907e-b17e01a729ba');
+INSERT INTO public.role_authorities (role_id, authority_id) VALUES ('03336c98-b9a2-4e51-865f-91dd93ce6542', '9ab874e1-94f3-4f04-bd65-773396fcef9a');
 INSERT INTO public.role_authorities (role_id, authority_id) VALUES ('58110d15-0128-40f1-a39b-ac61519af86e', '90678825-af11-48ec-9ae8-ca1f4596230a');
 INSERT INTO public.role_authorities (role_id, authority_id) VALUES ('58110d15-0128-40f1-a39b-ac61519af86e', '8bc470e9-308e-4e34-907e-b17e01a729ba');
 INSERT INTO public.role_authorities (role_id, authority_id) VALUES ('58110d15-0128-40f1-a39b-ac61519af86e', '5b2d3ebe-f382-4bab-89f3-a2b4c7727791');
