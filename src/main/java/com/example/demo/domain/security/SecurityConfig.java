@@ -3,6 +3,7 @@ package com.example.demo.domain.security;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -28,7 +29,12 @@ import org.springframework.security.crypto.password.PasswordEncoder;
      protected void configure(HttpSecurity http) throws Exception {
          http.httpBasic().and().csrf().disable()
                  .authorizeRequests()
-                 .antMatchers("/**").permitAll()
+                 .antMatchers("/Blog-Site").permitAll()
+                 .antMatchers(HttpMethod.GET,"/Blog-Site/users").hasAnyAuthority("READ_ALL")
+                 .antMatchers(HttpMethod.GET, "/Blog-Site/user/**").hasAnyAuthority("READ_ALL", "READ_OWN")
+                 .antMatchers(HttpMethod.PUT, "/Blog-Site/user/**").hasAnyAuthority("UPDATE_ALL", "UPDATE_OWN")
+                 .antMatchers(HttpMethod.DELETE, "/Blog-Site/user/**").hasAnyAuthority("DELETE_ALL", "DELETE_OWN")
+                 .antMatchers(HttpMethod.POST, "/Blog-Site/user/**").hasAnyAuthority("CREATE")
                  .and()
                  .formLogin();
      }
