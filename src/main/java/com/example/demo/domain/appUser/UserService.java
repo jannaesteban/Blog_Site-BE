@@ -15,7 +15,7 @@ public interface UserService {
     User getUser(String username);
     User findByUsername(String username, Principal currentUser) throws InstanceNotFoundException, UserException;
     List<User> getAllUsers() throws UserException;
-    String deleteUser(String username) throws InstanceNotFoundException;
+    String deleteUser(String username, Principal currentUser) throws InstanceNotFoundException, UserException;
     User createUser(User newUser)throws UserException, InstanceAlreadyExistsException;
     User editUserByUsername(User editedUser, String username, Principal currentUser)throws InstanceNotFoundException,UserException, InstanceAlreadyExistsException;
 
