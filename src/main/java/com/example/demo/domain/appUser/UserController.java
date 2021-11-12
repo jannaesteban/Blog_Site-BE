@@ -27,7 +27,7 @@ public class UserController {
     }
 
     @GetMapping("/users")
-    @PreAuthorize("hasAuthority('ALL_PRIVILEGES')")
+    @PreAuthorize("hasAnyAuthority('READ_ALL')")
     public ResponseEntity<Collection<User>> findAll() {
         return new ResponseEntity<Collection<User>>(userService.findAll(), HttpStatus.OK);
     }
@@ -38,21 +38,21 @@ public class UserController {
     }
 
     @DeleteMapping("/user/{username}")
-    @PreAuthorize("hasAuthority('ALL_PRIVILEGES')")
+    @PreAuthorize("hasAnyAuthority('DELETE_OTHERS', 'DELETE_OWN')")
     public ResponseEntity<String> deleteUser(@PathVariable String username){
         return ResponseEntity.ok().body(userService.deleteUser(username));
     }
 
     @GetMapping("/user/{username}")
-    @PreAuthorize("hasAnyAuthority('ALL_PRIVILEGES', 'READ_OWN', 'READ_ALL')")
+    @PreAuthorize("hasAnyAuthority('READ_OWN', 'READ_ALL')")
     public ResponseEntity<Optional<User>> getUserByUsername(@PathVariable String username, Principal currentUser){
         return ResponseEntity.ok().body(userService.findByUsername(username, currentUser));
     }
 
     @PutMapping("/user/{username}")
-    @PreAuthorize("hasAuthority('ALL_PRIVILEGES')")
-    public ResponseEntity<String> editUserById(@RequestBody User editedUser, @PathVariable String username) throws InstanceNotFoundException {
-        return ResponseEntity.ok().body(userService.editUserByUsername(editedUser, username));
+    @PreAuthorize("hasAnyAuthority('UPDATE_OWN', 'UPDATE_OTHERS')")
+    public ResponseEntity editUserById(@RequestBody User editedUser, @PathVariable String username, Principal currentUser) throws InstanceNotFoundException {
+        return ResponseEntity.ok().body(userService.editUserByUsername(editedUser, username, currentUser));
     }
 
 }
