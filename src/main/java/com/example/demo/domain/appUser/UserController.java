@@ -7,17 +7,19 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
-
+import javax.management.InstanceAlreadyExistsException;
 import javax.management.InstanceNotFoundException;
-import java.security.Principal;
 import java.util.Collection;
 import java.util.Optional;
+import java.util.UUID;
+import java.security.Principal;
+
 
 @RestController @RequestMapping("/Blog-Site")
 @RequiredArgsConstructor
 public class UserController {
 //    ADD YOUR ENDPOINT MAPPINGS HERE
-private final UserService userService;
+    private final UserService userService;
 
     @GetMapping("/")
     public ResponseEntity<String> HomeTest(){
@@ -28,6 +30,11 @@ private final UserService userService;
     @PreAuthorize("hasAuthority('ALL_PRIVILEGES')")
     public ResponseEntity<Collection<User>> findAll() {
         return new ResponseEntity<Collection<User>>(userService.findAll(), HttpStatus.OK);
+    }
+
+    @PostMapping("/user")
+    public ResponseEntity<String> createUser(@RequestBody NewUser newUser) {
+        return ResponseEntity.ok(userService.createUser(newUser));
     }
 
     @DeleteMapping("/user/{username}")
