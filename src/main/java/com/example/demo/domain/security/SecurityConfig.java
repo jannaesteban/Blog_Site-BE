@@ -28,8 +28,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
      protected void configure(HttpSecurity http) throws Exception {
          http.httpBasic().and().csrf().disable()
                  .authorizeRequests()
-                 .antMatchers("/**").hasAuthority("ALL_PRIVILEGES")
-                 .antMatchers("/Blog-Site/users/{id}").permitAll()
+                 .antMatchers("/**").permitAll()
                  .and()
                  .formLogin();
      }

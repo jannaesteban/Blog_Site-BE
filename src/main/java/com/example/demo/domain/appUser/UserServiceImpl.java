@@ -112,7 +112,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 
     @Override
     public User editUserInformationById(Principal currentUser, User editedUser, UUID id) throws InstanceNotFoundException {
-        if (userRepository.existsById(id) || userRepository.getById(id).getId().equals(currentUser)) {
+        if (userRepository.existsById(id) && userRepository.getById(id).getId().equals(currentUser)) {
             return userRepository.findById(id).map(user -> {
                 user.setEmail(editedUser.getEmail());
                 user.setPassword(editedUser.getPassword());
