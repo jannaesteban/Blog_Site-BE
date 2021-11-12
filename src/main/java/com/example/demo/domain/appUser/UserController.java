@@ -2,20 +2,18 @@ package com.example.demo.domain.appUser;
 
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
-
-
 import javax.management.InstanceAlreadyExistsException;
-
 import javax.management.InstanceNotFoundException;
-
 import java.util.Collection;
 import java.util.Optional;
 import java.util.UUID;
+import java.security.Principal;
+
+
 
 @RestController @RequestMapping("/Blog-Site")
 @RequiredArgsConstructor
@@ -34,7 +32,6 @@ public class UserController {
         return new ResponseEntity<Collection<User>>(userService.findAll(), HttpStatus.OK);
     }
 
-
     @PostMapping("/")
     public ResponseEntity<User> createUser(@RequestBody User newUser) {
         try {
@@ -44,21 +41,22 @@ public class UserController {
         }
     }
 
-    @DeleteMapping("user/{uuid}")
+    @DeleteMapping("/user/{username}")
     @PreAuthorize("hasAuthority('ALL_PRIVILEGES')")
-    public ResponseEntity<String> deleteUser(@PathVariable("uuid") UUID uuid){
-        return ResponseEntity.ok().body(userService.deleteUser(uuid));
+    public ResponseEntity<String> deleteUser(@PathVariable String username){
+        return ResponseEntity.ok().body(userService.deleteUser(username));
     }
 
-    @GetMapping("/user/{id}")
-    public ResponseEntity<Optional<User>> getUserById(@PathVariable UUID id) throws InstanceNotFoundException {
-        return ResponseEntity.ok().body(userService.findById(id));
+    @GetMapping("/user/{username}")
+    @PreAuthorize("hasAnyAuthority('ALL_PRIVILEGES', 'READ_OWN', 'READ_ALL')")
+    public ResponseEntity<Optional<User>> getUserByUsername(@PathVariable String username, Principal currentUser){
+        return ResponseEntity.ok().body(userService.findByUsername(username, currentUser));
     }
 
-    @PutMapping("/user/{id}")
+    @PutMapping("/user/{username}")
     @PreAuthorize("hasAuthority('ALL_PRIVILEGES')")
-    public ResponseEntity<User> editUserById(@RequestBody User editedUser, @PathVariable UUID id) throws InstanceNotFoundException {
-        return ResponseEntity.ok().body(userService.editUserInformationById(editedUser, id));
+    public ResponseEntity<String> editUserById(@RequestBody User editedUser, @PathVariable String username) throws InstanceNotFoundException {
+        return ResponseEntity.ok().body(userService.editUserByUsername(editedUser, username));
     }
 
 }
