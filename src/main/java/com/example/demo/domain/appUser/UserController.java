@@ -75,11 +75,13 @@ public class UserController {
 
     @DeleteMapping("/user/{username}")
     @PreAuthorize("hasAnyAuthority('DELETE_OTHERS', 'DELETE_OWN')")
-    public ResponseEntity deleteUser(@PathVariable String username) {
+    public ResponseEntity deleteUser(@PathVariable String username, Principal currentUser) {
         try {
-            return ResponseEntity.ok().body(userService.deleteUser(username));
+            return ResponseEntity.ok().body(userService.deleteUser(username, currentUser));
         }catch (InstanceNotFoundException e){
             return ResponseEntity.status(404).body(e.getMessage());
+        }catch (UserException e){
+            return ResponseEntity.status(401).body(e.getMessage());
         }
     }
 

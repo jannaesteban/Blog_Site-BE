@@ -25,12 +25,14 @@ import java.util.*;
 @Transactional
 public class UserServiceImpl implements UserService, UserDetailsService {
 
+    
     @Autowired
     private final UserRepository userRepository;
     @Autowired
     private final RoleRepository roleRepository;
     @Autowired
     private final AuthorityRepository authorityRepository;
+    
 
     @Override
 //    This method is used for security authentication, use caution when changing this
@@ -119,11 +121,13 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     }
 
     @Override
-    public String deleteUser(String username) throws InstanceNotFoundException{
+    public String deleteUser(String username, Principal currentUser) throws InstanceNotFoundException, UserException{
         User user = userRepository.findByUsername(username);
         if (user != null) {
-            userRepository.deleteById(user.getId());
-            return "User "+username+" has been deleted";
+            if (hasAuthority(username, currentUser, "DELETE_ALL")){
+                userRepository.deleteById(user.getId());
+                return "User "+username+" has been deleted";
+            } throw new UserException("You don't have the authority to delete the user " +username);
         } throw new InstanceNotFoundException("User not found");
     }
 
