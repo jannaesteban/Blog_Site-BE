@@ -1,21 +1,17 @@
 package com.example.demo.domain.appUser;
 
 import com.example.demo.domain.authority.AuthorityRepository;
+import com.example.demo.domain.exception.UserException;
 import com.example.demo.domain.role.Role;
 import com.example.demo.domain.role.RoleRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.crossstore.ChangeSetPersister;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.ResponseBody;
 
 import javax.management.InstanceAlreadyExistsException;
 import javax.management.InstanceNotFoundException;
@@ -47,11 +43,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
         } else {
 //          Construct a valid set of Authorities (needs to implement Granted Authorities)
             Collection<SimpleGrantedAuthority> authorities = new ArrayList<>();
-            user.getRoles().forEach(roles -> {
-                roles.getAuthorities().forEach(authority -> {
-                    authorities.add(new SimpleGrantedAuthority(authority.getName()));
-                });
-            });
+            user.getRoles().forEach(roles -> roles.getAuthorities().forEach(authority -> authorities.add(new SimpleGrantedAuthority(authority.getName()))));
 //            return a spring internal user object that contains authorities and roles
             return new org.springframework.security.core.userdetails.User(user.getUsername(), user.getPassword(), authorities);
         }
@@ -97,14 +89,15 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     }
 
     @Override
-    public Optional<User> findByUsername(String username, Principal currentUser) {
+    public User findByUsername(String username, Principal currentUser) throws InstanceNotFoundException, UserException {
         if (hasAuthority(username, currentUser, "READ_ALL")) {
             User user = userRepository.findByUsername(username);
             if (user != null) {
-                return userRepository.findById(user.getId());
+                return user;
             }
+            throw new InstanceNotFoundException("User "+username+" not found.");
         }
-        return Optional.empty();
+       throw new UserException("You don't have the authority to display this user.");
     }
 
     private boolean hasAuthority(String username, Principal user, String authority) {
@@ -119,58 +112,47 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     }
 
     @Override
-    public List<User> findAll() {
-        return userRepository.findAll();
+    public List<User> getAllUsers() throws UserException{
+        if(userRepository.findAll().isEmpty()){
+            throw new UserException("No users entries");
+        }return userRepository.findAll();
     }
 
     @Override
-    public String deleteUser(String username) {
+    public String deleteUser(String username) throws InstanceNotFoundException{
         User user = userRepository.findByUsername(username);
         if (user != null) {
             userRepository.deleteById(user.getId());
-            return "DELETED";
-        } else return "user not found";
+            return "User "+username+" has been deleted";
+        } throw new InstanceNotFoundException("User not found");
     }
 
     @Override
-    public ResponseEntity editUserByUsername(User editedUser, String username, Principal currentUser) {
+    public User editUserByUsername(User editedUser, String username, Principal currentUser) throws InstanceNotFoundException, UserException, InstanceAlreadyExistsException {
         User user = userRepository.findByUsername(username);
         if (user != null) {
-            if (user.getUsername() == username || userRepository.findByUsername(user.getUsername()) == null) {
+            if (currentUser.getName().equals(username) || userRepository.findByUsername(user.getUsername()) == null) {
                 if (hasAuthority(username, currentUser, "UPDATE_ALL")) {
                     user.setEmail(editedUser.getEmail());
                     user.setPassword(editedUser.getPassword());
                     user.setUsername(editedUser.getUsername());
-                    return ResponseEntity.ok(userRepository.save(user));
-                }
-                return ResponseEntity.status(401).body("User has not the authority to change User information");
-            }
-            return ResponseEntity.status(409).body("Username is already taken");
-        }
-        return ResponseEntity.status(404).body("User not found");
+                    return userRepository.save(user);
+                }throw new UserException("You don't have the authority to edit user "+username);
+            }throw new InstanceAlreadyExistsException("Username "+username+" is already taken");
+        }throw new InstanceNotFoundException("User "+username+" not found");
     }
 
     @Override
-    public String createUser(User newUser) {
-        if(newUser.getUsername() == null || newUser.getUsername().trim().equals("")){
-            return "Username can't be null";
-        }
-        if (userRepository.findByUsername(newUser.getUsername()) != null) {
-            return "Username already taken";
-        }
-        if(newUser.getPassword() == null || newUser.getPassword().trim().equals("")){
-            return "Password can't be null";
-        }
-        if(newUser.getEmail() == null || newUser.getEmail().trim().equals("")){
-            return "Email can't be null";
-        }
+    public User createUser(User newUser) throws UserException, InstanceAlreadyExistsException {
+        User user = new User();
+        user.setEmail(newUser.getEmail().trim());
+        user.setPassword(newUser.getPassword().trim());
+        user.setUsername(newUser.getUsername().trim());
+        user.setRoles(Set.of(roleRepository.findByName("USER")));
 
-        newUser.setRoles(Set.of(roleRepository.findByName("USER")));
-        try {
-            saveUser(newUser);
-            return "User created";
-        } catch (InstanceAlreadyExistsException e) {
-            return "Username already taken";
-        }
+        if(!(user.getUsername().equals("") || user.getPassword().equals("") || user.getEmail().equals(""))){
+            return saveUser(newUser);
+        }throw new UserException("All fields are required");
+
     }
 }
