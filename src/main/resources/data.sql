@@ -15,11 +15,12 @@ INSERT INTO public.role_authorities (role_id, authority_id) VALUES ('3b24cce9-1b
 INSERT INTO public.role_authorities (role_id, authority_id) VALUES ('3b24cce9-1bda-493e-84d3-41cb35d539de', '9ab874e1-94f3-4f04-bd65-773396fcef9a');
 INSERT INTO public.role_authorities (role_id, authority_id) VALUES ('03336c98-b9a2-4e51-865f-91dd93ce6542', '90678825-af11-48ec-9ae8-ca1f4596230a');
 INSERT INTO public.role_authorities (role_id, authority_id) VALUES ('58110d15-0128-40f1-a39b-ac61519af86e', '293cb7c7-8dd7-492b-ad93-0223cf5c8e4a');
-INSERT INTO public.users (id, email, password, username, user_profile, blog_post, list, groups) VALUES ('aaf19905-4ce3-4319-86e7-29852d82174e', 'james.bond@mi6.com', 'bond', 'james', '','','','');
-INSERT INTO public.users (id, email, password, username, user_profile, blog_post, list, groups) VALUES ('9b548bc5-1730-4294-be58-6fe48a04cb57', 'luca.widmer@gmail.com', 'widmer', 'luca', '','','','');
-INSERT INTO public.users (id, email, password, username, user_profile, blog_post, list, groups) VALUES ('54ac527e-60fd-4eb2-af38-48c737921a87', 'lena.antonelli@gmail.com', 'antonelli', 'lena', '','','','');
-INSERT INTO public.users (id, email, password, username, user_profile, blog_post, list, groups) VALUES ('cef35c01-6fae-4911-8b56-7c7b090c9b43', 'martin.meier@gmail.com', 'martin', 'meier', '','','','');
-INSERT INTO public.users (id, email, password, username, user_profile, blog_post, list, groups) VALUES ('50c99d44-e81a-46f3-a9ef-e44f78c42755', 'maria.dillard@gmail.com', 'dillard', 'maria', '','','','');
+INSERT INTO public.role_authorities (role_id, authority_id) VALUES ('58110d15-0128-40f1-a39b-ac61519af86e', '1521610a-7f79-4a16-a3dd-6d609827329d');
+INSERT INTO public.users (id, email, password, username) VALUES ('aaf19905-4ce3-4319-86e7-29852d82174e', 'james.bond@mi6.com', 'bond', 'james');
+INSERT INTO public.users (id, email, password, username) VALUES ('9b548bc5-1730-4294-be58-6fe48a04cb57', 'luca.widmer@gmail.com', 'widmer', 'luca');
+INSERT INTO public.users (id, email, password, username) VALUES ('54ac527e-60fd-4eb2-af38-48c737921a87', 'lena.antonelli@gmail.com', 'antonelli', 'lena');
+INSERT INTO public.users (id, email, password, username) VALUES ('cef35c01-6fae-4911-8b56-7c7b090c9b43', 'martin.meier@gmail.com', 'martin', 'meier');
+INSERT INTO public.users (id, email, password, username) VALUES ('50c99d44-e81a-46f3-a9ef-e44f78c42755', 'maria.dillard@gmail.com', 'dillard', 'maria');
 INSERT INTO public.users_roles (user_id, role_id) VALUES ('aaf19905-4ce3-4319-86e7-29852d82174e', '3b24cce9-1bda-493e-84d3-41cb35d539de');
 INSERT INTO public.users_roles (user_id, role_id) VALUES ('9b548bc5-1730-4294-be58-6fe48a04cb57', '58110d15-0128-40f1-a39b-ac61519af86e');
 INSERT INTO public.users_roles (user_id, role_id) VALUES ('54ac527e-60fd-4eb2-af38-48c737921a87', '3b24cce9-1bda-493e-84d3-41cb35d539de');

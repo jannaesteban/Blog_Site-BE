@@ -1,10 +1,12 @@
 package com.example.demo.domain.appUser;
 
+import com.example.demo.domain.authority.AuthorityRepository;
 import com.example.demo.domain.role.Role;
 import com.example.demo.domain.role.RoleRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.crossstore.ChangeSetPersister;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -31,7 +33,8 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     private final UserRepository userRepository;
     @Autowired
     private final RoleRepository roleRepository;
-
+    @Autowired
+    private final AuthorityRepository authorityRepository;
 
     @Override
 //    This method is used for security authentication, use caution when changing this
@@ -94,19 +97,25 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     }
 
     @Override
-    public Optional<User> findByUsername(String username, Principal currentUser){
-        if(hasAuthority(username, currentUser)){
+    public Optional<User> findByUsername(String username, Principal currentUser) {
+        if (hasAuthority(username, currentUser, "READ_ALL")) {
             User user = userRepository.findByUsername(username);
-            if(user != null){
+            if (user != null) {
                 return userRepository.findById(user.getId());
             }
         }
         return Optional.empty();
     }
 
-    private boolean hasAuthority(String username, Principal user) {
+    private boolean hasAuthority(String username, Principal user, String authority) {
         User currentUser = userRepository.findByUsername(user.getName());
-        return currentUser.getUsername().equals(username) || currentUser.getRoles().contains(roleRepository.findByName("ADMIN"));
+        if (currentUser.getUsername().equals(username) || currentUser.getRoles().contains(roleRepository.findByName("ADMIN")))
+            return true;
+        for (Role role : currentUser.getRoles()) {
+            if (role.getAuthorities().contains(authorityRepository.findByName(authority)))
+                return true;
+        }
+        return false;
     }
 
     @Override
@@ -123,17 +132,22 @@ public class UserServiceImpl implements UserService, UserDetailsService {
         } else return "user not found";
     }
 
-    public String editUserByUsername(User editedUser, String username) {
+    @Override
+    public ResponseEntity editUserByUsername(User editedUser, String username, Principal currentUser) {
         User user = userRepository.findByUsername(username);
-        if (user.getId() != null) {
-            return userRepository.findById(user.getId()).map(updatedUser -> {
-                updatedUser.setEmail(editedUser.getEmail());
-                updatedUser.setPassword(editedUser.getPassword());
-                updatedUser.setUsername(editedUser.getUsername());
-                return userRepository.save(updatedUser);
-            }).toString();
-        }else return "User not found";
-
+        if (user != null) {
+            if (user.getUsername() == username || userRepository.findByUsername(user.getUsername()) == null) {
+                if (hasAuthority(username, currentUser, "UPDATE_ALL")) {
+                    user.setEmail(editedUser.getEmail());
+                    user.setPassword(editedUser.getPassword());
+                    user.setUsername(editedUser.getUsername());
+                    return ResponseEntity.ok(userRepository.save(user));
+                }
+                return ResponseEntity.status(401).body("User has not the authority to change User information");
+            }
+            return ResponseEntity.status(409).body("Username is already taken");
+        }
+        return ResponseEntity.status(404).body("User not found");
     }
 
     @Override

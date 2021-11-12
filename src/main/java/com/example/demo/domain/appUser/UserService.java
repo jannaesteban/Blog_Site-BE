@@ -2,6 +2,7 @@ package com.example.demo.domain.appUser;
 
 
 import com.example.demo.domain.role.Role;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import javax.management.InstanceAlreadyExistsException;
@@ -19,6 +20,7 @@ public interface UserService {
     Optional<User> findByUsername(String username, Principal currentUser);
     List<User> findAll();
     String deleteUser(String username);
-    String editUserByUsername(User editedUser, String username) ;
+    ResponseEntity editUserByUsername(User editedUser, String username, Principal currentUser) ;
     String createUser(NewUser newUser);
+
 }
