@@ -2,6 +2,7 @@ package com.example.demo.domain.appUser;
 
 
 import com.example.demo.domain.role.Role;
+import org.springframework.web.bind.annotation.ResponseBody;
 
 import javax.management.InstanceAlreadyExistsException;
 import javax.management.InstanceNotFoundException;
@@ -15,8 +16,8 @@ public interface UserService {
     Role saveRole(Role role);
     void addRoleToUser(String username, String rolename);
     User getUser(String username);
-    Optional<User> findById(UUID id) throws InstanceNotFoundException;
+    Optional<User> findByUsername(String username, Principal currentUser);
     List<User> findAll();
-    String deleteUser(UUID uuid);
-    User editUserInformationById(Principal currentUser, User editedUser, UUID id) throws InstanceNotFoundException;
+    String deleteUser(String username);
+    String editUserByUsername(User editedUser, String username) ;
 }
