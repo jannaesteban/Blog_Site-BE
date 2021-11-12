@@ -5,7 +5,7 @@ INSERT INTO public.authority (id, name) VALUES ('90678825-af11-48ec-9ae8-ca1f459
 INSERT INTO public.authority (id, name) VALUES ('8bc470e9-308e-4e34-907e-b17e01a729ba', 'READ_ALL');
 INSERT INTO public.authority (id, name) VALUES ('78904317-e48e-493d-abdd-8f83be72f584', 'CREATE');
 INSERT INTO public.authority (id, name) VALUES ('5b2d3ebe-f382-4bab-89f3-a2b4c7727791', 'DELETE_OWN');
-INSERT INTO public.authority (id, name) VALUES ('adbbbcd7-942e-4dcc-856d-df17404c8bad ', 'DELETE_ALL');
+INSERT INTO public.authority (id, name) VALUES ('adbbbcd7-942e-4dcc-856d-df17404c8bad', 'DELETE_ALL');
 INSERT INTO public.authority (id, name) VALUES ('9ab874e1-94f3-4f04-bd65-773396fcef9a', 'UPDATE_OWN');
 INSERT INTO public.authority (id, name) VALUES ('1521610a-7f79-4a16-a3dd-6d609827329d', 'UPDATE_ALL');
 INSERT INTO public.authority (id, name) VALUES ('293cb7c7-8dd7-492b-ad93-0223cf5c8e4a', 'ALL_PRIVILEGES');

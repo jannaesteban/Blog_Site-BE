@@ -20,4 +20,5 @@ public interface UserService {
     List<User> findAll();
     String deleteUser(String username);
     String editUserByUsername(User editedUser, String username) ;
+    String createUser(NewUser newUser);
 }

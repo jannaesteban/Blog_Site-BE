@@ -32,13 +32,9 @@ public class UserController {
         return new ResponseEntity<Collection<User>>(userService.findAll(), HttpStatus.OK);
     }
 
-    @PostMapping("/")
-    public ResponseEntity<User> createUser(@RequestBody User newUser) {
-        try {
-            return ResponseEntity.ok(userService.saveUser(newUser));
-        } catch (InstanceAlreadyExistsException e) {
-            return ResponseEntity.status(409).body(null);
-        }
+    @PostMapping("/user")
+    public ResponseEntity<String> createUser(@RequestBody NewUser newUser) {
+        return ResponseEntity.ok(userService.createUser(newUser));
     }
 
     @DeleteMapping("/user/{username}")
