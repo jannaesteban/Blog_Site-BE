@@ -38,16 +38,16 @@ private final UserService userService;
     }
 
     @GetMapping("/user/{username}")
-    @PreAuthorize("hasAnyAuthority('ALL_PRIVILEGES', 'READ_OWN', 'READ_ALL')")
+    @PreAuthorize("hasAnyAuthority('READ_OWN', 'READ_ALL')")
     public ResponseEntity<Optional<User>> getUserByUsername(@PathVariable String username, Principal currentUser){
         return ResponseEntity.ok().body(userService.findByUsername(username, currentUser));
     }
 
 
     @PutMapping("/user/{username}")
-    @PreAuthorize("hasAuthority('ALL_PRIVILEGES')")
-    public ResponseEntity<String> editUserById(@RequestBody User editedUser, @PathVariable String username) throws InstanceNotFoundException {
-        return ResponseEntity.ok().body(userService.editUserByUsername(editedUser, username));
+    @PreAuthorize("hasAnyAuthority('UPDATE_OWN', 'UPDATE_ALL')")
+    public ResponseEntity editUserById(@RequestBody User editedUser, @PathVariable String username, Principal currentUser) throws InstanceNotFoundException {
+        return ResponseEntity.ok().body(userService.editUserByUsername(editedUser, username, currentUser));
     }
 
 }
