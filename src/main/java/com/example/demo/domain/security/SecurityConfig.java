@@ -21,7 +21,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 
      @Autowired
      public void configureGlobal(AuthenticationManagerBuilder auth) throws Exception {
-
                  auth.userDetailsService(userDetailsService).passwordEncoder(passwordEncoder);
      }
 
