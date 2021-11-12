@@ -37,9 +37,9 @@ public class UserController {
 
     @GetMapping("/user/{username}")
     @PreAuthorize("hasAnyAuthority('READ_OWN', 'READ_ALL')")
-    public ResponseEntity getUserByUsername(@PathVariable String username, Principal currentUser) {
+    public ResponseEntity getUserByUsername(@PathVariable String username, Principal principal) {
         try{
-            return ResponseEntity.ok().body(userService.findByUsername(username, currentUser));
+            return ResponseEntity.ok().body(userService.findByUsername(username, principal));
         }catch (InstanceNotFoundException e){
             return ResponseEntity.status(404).body("User not found");
         }catch (UserException e){
@@ -61,9 +61,9 @@ public class UserController {
 
     @PutMapping("/user/{username}")
     @PreAuthorize("hasAnyAuthority('UPDATE_OWN', 'UPDATE_OTHERS')")
-    public ResponseEntity editUserById(@RequestBody User editedUser, @PathVariable String username, Principal currentUser) throws InstanceNotFoundException {
+    public ResponseEntity editUserById(@RequestBody User editedUser, @PathVariable String username, Principal principal) throws InstanceNotFoundException {
         try {
-            return ResponseEntity.ok().body(userService.editUserByUsername(editedUser, username, currentUser));
+            return ResponseEntity.ok().body(userService.editUserByUsername(editedUser, username, principal));
         } catch (UserException e) {
             return ResponseEntity.status(401).body(e.getMessage());
         } catch (InstanceAlreadyExistsException e) {
@@ -75,9 +75,9 @@ public class UserController {
 
     @DeleteMapping("/user/{username}")
     @PreAuthorize("hasAnyAuthority('DELETE_OTHERS', 'DELETE_OWN')")
-    public ResponseEntity deleteUser(@PathVariable String username, Principal currentUser) {
+    public ResponseEntity deleteUser(@PathVariable String username, Principal principal) {
         try {
-            return ResponseEntity.ok().body(userService.deleteUser(username, currentUser));
+            return ResponseEntity.ok().body(userService.deleteUser(username, principal));
         }catch (InstanceNotFoundException e){
             return ResponseEntity.status(404).body(e.getMessage());
         }catch (UserException e){
