@@ -153,5 +153,6 @@ public class UserServiceImpl implements UserService, UserDetailsService {
         user.setPassword(newUser.getPassword());
         user.setRoles(Set.of(roleRepository.findByName("USER")));
         return user;
+
     }
 }
