@@ -149,4 +149,24 @@ public class UserServiceImpl implements UserService, UserDetailsService {
         }
         return ResponseEntity.status(404).body("User not found");
     }
+
+    @Override
+    public String createUser(NewUser newUser) {
+        try {
+            saveUser(newUserToUser(newUser));
+            return "User created";
+        } catch (InstanceAlreadyExistsException e) {
+            return "Username already taken";
+        }
+    }
+
+    private User newUserToUser(NewUser newUser){
+        User user = new User();
+        user.setUsername(newUser.getUsername());
+        user.setEmail(newUser.getEmail());
+        user.setPassword(newUser.getPassword());
+        user.setRoles(Set.of(roleRepository.findByName("USER")));
+        return user;
+
+    }
 }

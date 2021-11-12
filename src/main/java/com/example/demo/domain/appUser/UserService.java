@@ -21,4 +21,6 @@ public interface UserService {
     List<User> findAll();
     String deleteUser(String username);
     ResponseEntity editUserByUsername(User editedUser, String username, Principal currentUser) ;
+    String createUser(NewUser newUser);
+
 }
