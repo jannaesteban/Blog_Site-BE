@@ -94,10 +94,10 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     }
 
     @Override
-    public Optional<User> findByUsername(String username, Principal currentUser){
-        if(hasAuthority(username, currentUser)){
+    public Optional<User> findByUsername(String username, Principal currentUser) {
+        if (hasAuthority(username, currentUser)) {
             User user = userRepository.findByUsername(username);
-            if(user != null){
+            if (user != null) {
                 return userRepository.findById(user.getId());
             }
         }
@@ -132,27 +132,31 @@ public class UserServiceImpl implements UserService, UserDetailsService {
                 updatedUser.setUsername(editedUser.getUsername());
                 return userRepository.save(updatedUser);
             }).toString();
-        }else return "User not found";
+        } else return "User not found";
 
     }
 
     @Override
-    public String createUser(NewUser newUser) {
+    public String createUser(User newUser) {
+        if(newUser.getUsername() == null || newUser.getUsername().trim().equals("")){
+            return "Username can't be null";
+        }
+        if (userRepository.findByUsername(newUser.getUsername()) != null) {
+            return "Username already taken";
+        }
+        if(newUser.getPassword() == null || newUser.getPassword().trim().equals("")){
+            return "Password can't be null";
+        }
+        if(newUser.getEmail() == null || newUser.getEmail().trim().equals("")){
+            return "Email can't be null";
+        }
+
+        newUser.setRoles(Set.of(roleRepository.findByName("USER")));
         try {
-            saveUser(newUserToUser(newUser));
+            saveUser(newUser);
             return "User created";
         } catch (InstanceAlreadyExistsException e) {
             return "Username already taken";
         }
-    }
-
-    private User newUserToUser(NewUser newUser){
-        User user = new User();
-        user.setUsername(newUser.getUsername());
-        user.setEmail(newUser.getEmail());
-        user.setPassword(newUser.getPassword());
-        user.setRoles(Set.of(roleRepository.findByName("USER")));
-        return user;
-
     }
 }
