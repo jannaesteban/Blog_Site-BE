@@ -23,6 +23,9 @@ password: bond
 
 When logged in the site should display the text "Hello World" 
 
+##Endpoints Documentation with Swagger
+To have a better overview to our implemented endpoints, we added swagger to our project, which gives a description about each endpoint.\
+[Source](http://localhost:8080/swagger-ui.html) to Swagger documentation.
 
 ##  Common Issues & Fixes
 * Restart the PostGreSQL container & check the container is running
