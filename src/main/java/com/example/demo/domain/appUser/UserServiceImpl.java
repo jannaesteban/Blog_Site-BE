@@ -25,14 +25,14 @@ import java.util.*;
 @Transactional
 public class UserServiceImpl implements UserService, UserDetailsService {
 
-    
+
     @Autowired
     private final UserRepository userRepository;
     @Autowired
     private final RoleRepository roleRepository;
     @Autowired
     private final AuthorityRepository authorityRepository;
-    
+
 
     @Override
 //    This method is used for security authentication, use caution when changing this
@@ -91,19 +91,19 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     }
 
     @Override
-    public User findByUsername(String username, Principal currentUser) throws InstanceNotFoundException, UserException {
-        if (hasAuthority(username, currentUser, "READ_ALL")) {
+    public User findByUsername(String username, Principal principal) throws InstanceNotFoundException, UserException {
+        if (hasAuthority(username, principal, "READ_ALL")) {
             User user = userRepository.findByUsername(username);
             if (user != null) {
                 return user;
             }
-            throw new InstanceNotFoundException("User "+username+" not found.");
+            throw new InstanceNotFoundException("User " + username + " not found.");
         }
-       throw new UserException("You don't have the authority to display this user.");
+        throw new UserException("You don't have the authority to display this user.");
     }
 
-    private boolean hasAuthority(String username, Principal user, String authority) {
-        User currentUser = userRepository.findByUsername(user.getName());
+    private boolean hasAuthority(String username, Principal principal, String authority) {
+        User currentUser = userRepository.findByUsername(principal.getName());
         if (currentUser.getUsername().equals(username) || currentUser.getRoles().contains(roleRepository.findByName("ADMIN")))
             return true;
         for (Role role : currentUser.getRoles()) {
@@ -114,37 +114,48 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     }
 
     @Override
-    public List<User> getAllUsers() throws UserException{
-        if(userRepository.findAll().isEmpty()){
+    public List<User> getAllUsers() throws UserException {
+        if (userRepository.findAll().isEmpty()) {
             throw new UserException("No users entries");
-        }return userRepository.findAll();
+        }
+        return userRepository.findAll();
     }
 
     @Override
-    public String deleteUser(String username, Principal currentUser) throws InstanceNotFoundException, UserException{
+    public String deleteUser(String username, Principal principal) throws InstanceNotFoundException, UserException {
         User user = userRepository.findByUsername(username);
         if (user != null) {
-            if (hasAuthority(username, currentUser, "DELETE_ALL")){
+            if (hasAuthority(username, principal, "DELETE_ALL")) {
                 userRepository.deleteById(user.getId());
-                return "User "+username+" has been deleted";
-            } throw new UserException("You don't have the authority to delete the user " +username);
-        } throw new InstanceNotFoundException("User not found");
+                return "User " + username + " has been deleted";
+            }
+            throw new UserException("You don't have the authority to delete the user " + username);
+        }
+        throw new InstanceNotFoundException("User not found");
     }
 
     @Override
-    public User editUserByUsername(User editedUser, String username, Principal currentUser) throws InstanceNotFoundException, UserException, InstanceAlreadyExistsException {
+    public User editUserByUsername(User editedUser, String username, Principal principal) throws InstanceNotFoundException, UserException, InstanceAlreadyExistsException {
+        User currentUser = userRepository.findByUsername(principal.getName());
         User user = userRepository.findByUsername(username);
-        if (user != null) {
-            if (currentUser.getName().equals(username) || userRepository.findByUsername(user.getUsername()) == null) {
-                if (hasAuthority(username, currentUser, "UPDATE_ALL")) {
-                    user.setEmail(editedUser.getEmail());
-                    user.setPassword(editedUser.getPassword());
-                    user.setUsername(editedUser.getUsername());
-                    return userRepository.save(user);
-                }throw new UserException("You don't have the authority to edit user "+username);
-            }throw new InstanceAlreadyExistsException("Username "+username+" is already taken");
-        }throw new InstanceNotFoundException("User "+username+" not found");
+        if (user == null)
+            throw new InstanceNotFoundException("User " + username + " not found");
+        if (!username.equals(editedUser.getUsername()) && userRepository.findByUsername(editedUser.getUsername()) != null)
+            throw new InstanceAlreadyExistsException("Username " + username + " is already taken");
+
+        if (!hasAuthority(username, principal, "UPDATE_ALL"))
+            throw new UserException("You don't have the authority to edit user " + username);
+
+        user.setEmail(editedUser.getEmail());
+        user.setPassword(editedUser.getPassword());
+        user.setUsername(editedUser.getUsername());
+        if (currentUser.getRoles().contains(roleRepository.findByName("ADMIN"))) {
+            user.setRoles(editedUser.getRoles());
+        }
+        return userRepository.save(user);
     }
+
+
 
     @Override
     public User createUser(User newUser) throws UserException, InstanceAlreadyExistsException {
@@ -154,9 +165,10 @@ public class UserServiceImpl implements UserService, UserDetailsService {
         user.setUsername(newUser.getUsername().trim());
         user.setRoles(Set.of(roleRepository.findByName("USER")));
 
-        if(!(user.getUsername().equals("") || user.getPassword().equals("") || user.getEmail().equals(""))){
+        if (!(user.getUsername().equals("") || user.getPassword().equals("") || user.getEmail().equals(""))) {
             return saveUser(newUser);
-        }throw new UserException("All fields are required");
+        }
+        throw new UserException("All fields are required");
 
     }
 }

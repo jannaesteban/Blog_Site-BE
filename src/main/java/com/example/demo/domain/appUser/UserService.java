@@ -13,10 +13,10 @@ public interface UserService {
     Role saveRole(Role role);
     void addRoleToUser(String username, String rolename);
     User getUser(String username);
-    User findByUsername(String username, Principal currentUser) throws InstanceNotFoundException, UserException;
+    User findByUsername(String username, Principal principal) throws InstanceNotFoundException, UserException;
     List<User> getAllUsers() throws UserException;
-    String deleteUser(String username, Principal currentUser) throws InstanceNotFoundException, UserException;
+    String deleteUser(String username, Principal principal) throws InstanceNotFoundException, UserException;
     User createUser(User newUser)throws UserException, InstanceAlreadyExistsException;
-    User editUserByUsername(User editedUser, String username, Principal currentUser)throws InstanceNotFoundException,UserException, InstanceAlreadyExistsException;
+    User editUserByUsername(User editedUser, String username, Principal principal)throws InstanceNotFoundException,UserException, InstanceAlreadyExistsException;
 
 }
