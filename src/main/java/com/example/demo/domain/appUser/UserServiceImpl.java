@@ -6,16 +6,20 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.crossstore.ChangeSetPersister;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.ResponseBody;
 
 import javax.management.InstanceAlreadyExistsException;
 import javax.management.InstanceNotFoundException;
 import javax.transaction.Transactional;
 
+import java.security.Principal;
 import java.util.*;
 
 @Service
@@ -90,12 +94,19 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     }
 
     @Override
-    public Optional<User> findById(UUID id) throws InstanceNotFoundException {
-        if (userRepository.existsById(id)) {
-            return userRepository.findById(id);
-        } else {
-            throw new InstanceNotFoundException("User not found");
+    public Optional<User> findByUsername(String username, Principal currentUser){
+        if(hasAuthority(username, currentUser)){
+            User user = userRepository.findByUsername(username);
+            if(user != null){
+                return userRepository.findById(user.getId());
+            }
         }
+        return Optional.empty();
+    }
+
+    private boolean hasAuthority(String username, Principal user) {
+        User currentUser = userRepository.findByUsername(user.getName());
+        return currentUser.getUsername().equals(username) || currentUser.getRoles().contains(roleRepository.findByName("ADMIN"));
     }
 
     @Override
@@ -104,25 +115,24 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     }
 
     @Override
-    public String deleteUser(UUID uuid) {
-        userRepository.deleteById(uuid);
-        return "DELETED";
+    public String deleteUser(String username) {
+        User user = userRepository.findByUsername(username);
+        if (user != null) {
+            userRepository.deleteById(user.getId());
+            return "DELETED";
+        } else return "user not found";
     }
 
-    @Override
-    public User editUserInformationById(User editedUser, UUID id) throws InstanceNotFoundException {
-        if (userRepository.existsById(id)) {
-            return userRepository.findById(id).map(user -> {
-                user.setEmail(editedUser.getEmail());
-                user.setPassword(editedUser.getPassword());
-                user.setUsername(editedUser.getUsername());
-                return userRepository.save(user);
-            }).orElseGet(() -> {
-                editedUser.setId(id);
-                return userRepository.save(editedUser);
-            });
-        } else {
-            throw new InstanceNotFoundException("User not found");
-        }
+    public String editUserByUsername(User editedUser, String username) {
+        User user = userRepository.findByUsername(username);
+        if (user.getId() != null) {
+            return userRepository.findById(user.getId()).map(updatedUser -> {
+                updatedUser.setEmail(editedUser.getEmail());
+                updatedUser.setPassword(editedUser.getPassword());
+                updatedUser.setUsername(editedUser.getUsername());
+                return userRepository.save(updatedUser);
+            }).toString();
+        }else return "User not found";
+
     }
 }
