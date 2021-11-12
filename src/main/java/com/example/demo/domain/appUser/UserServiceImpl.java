@@ -99,7 +99,6 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     @Override
     public Optional<User> findByUsername(String username, Principal currentUser) {
         if (hasAuthority(username, currentUser, "READ_ALL")) {
-
             User user = userRepository.findByUsername(username);
             if (user != null) {
                 return userRepository.findById(user.getId());

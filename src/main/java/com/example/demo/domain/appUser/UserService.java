@@ -22,4 +22,5 @@ public interface UserService {
     String deleteUser(String username);
     String createUser(User newUser);
     ResponseEntity editUserByUsername(User editedUser, String username, Principal currentUser);
+
 }
