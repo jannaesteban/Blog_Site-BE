@@ -32,8 +32,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
                  .antMatchers("/Blog-Site").permitAll()
                  .antMatchers(HttpMethod.GET,"/Blog-Site/users").hasAnyAuthority("READ_ALL")
                  .antMatchers(HttpMethod.GET, "/Blog-Site/user/**").hasAnyAuthority("READ_ALL", "READ_OWN")
-                 .antMatchers(HttpMethod.PUT, "/Blog-Site/user/**").hasAnyAuthority("UPDATE_ALL", "UPDATE_OWN")
-                 .antMatchers(HttpMethod.DELETE, "/Blog-Site/user/**").hasAnyAuthority("DELETE_ALL", "DELETE_OWN")
+                 .antMatchers(HttpMethod.PUT, "/Blog-Site/user/**").hasAnyAuthority("UPDATE_OTHERS", "UPDATE_OWN")
+                 .antMatchers(HttpMethod.DELETE, "/Blog-Site/user/**").hasAnyAuthority("DELETE_OTHERS", "DELETE_OWN")
                  .antMatchers(HttpMethod.POST, "/Blog-Site/user/**").hasAnyAuthority("CREATE")
                  .and()
                  .formLogin();

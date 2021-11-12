@@ -27,7 +27,7 @@ public class UserController {
     }
 
     @GetMapping("/users")
-    @PreAuthorize("hasAuthority('ALL_PRIVILEGES')")
+    @PreAuthorize("hasAnyAuthority('READ_ALL')")
     public ResponseEntity<Collection<User>> findAll() {
         return new ResponseEntity<Collection<User>>(userService.findAll(), HttpStatus.OK);
     }
@@ -37,9 +37,8 @@ public class UserController {
         return ResponseEntity.ok(userService.createUser(newUser));
     }
 
-
     @DeleteMapping("/user/{username}")
-    @PreAuthorize("hasAuthority('ALL_PRIVILEGES')")
+    @PreAuthorize("hasAnyAuthority('DELETE_OTHERS', 'DELETE_OWN')")
     public ResponseEntity<String> deleteUser(@PathVariable String username){
         return ResponseEntity.ok().body(userService.deleteUser(username));
     }
@@ -50,9 +49,8 @@ public class UserController {
         return ResponseEntity.ok().body(userService.findByUsername(username, currentUser));
     }
 
-
     @PutMapping("/user/{username}")
-    @PreAuthorize("hasAnyAuthority('UPDATE_OWN', 'UPDATE_ALL')")
+    @PreAuthorize("hasAnyAuthority('UPDATE_OWN', 'UPDATE_OTHERS')")
     public ResponseEntity editUserById(@RequestBody User editedUser, @PathVariable String username, Principal currentUser) throws InstanceNotFoundException {
         return ResponseEntity.ok().body(userService.editUserByUsername(editedUser, username, currentUser));
     }
