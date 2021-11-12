@@ -33,7 +33,7 @@ public class UserController {
     }
 
     @PostMapping("/user")
-    public ResponseEntity<String> createUser(@RequestBody NewUser newUser) {
+    public ResponseEntity<String> createUser(@RequestBody User newUser) {
         return ResponseEntity.ok(userService.createUser(newUser));
     }
 

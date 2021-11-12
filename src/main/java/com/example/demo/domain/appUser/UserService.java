@@ -20,7 +20,7 @@ public interface UserService {
     Optional<User> findByUsername(String username, Principal currentUser);
     List<User> findAll();
     String deleteUser(String username);
-    ResponseEntity editUserByUsername(User editedUser, String username, Principal currentUser) ;
-    String createUser(NewUser newUser);
+    String createUser(User newUser);
+    ResponseEntity editUserByUsername(User editedUser, String username, Principal currentUser);
 
 }
