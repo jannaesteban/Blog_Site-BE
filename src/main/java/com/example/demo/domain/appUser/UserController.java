@@ -12,7 +12,9 @@ import javax.management.InstanceNotFoundException;
 import java.util.Collection;
 import java.security.Principal;
 
-
+/**
+ *javadoc
+ */
 @RestController
 @RequestMapping("/Blog-Site")
 @RequiredArgsConstructor
