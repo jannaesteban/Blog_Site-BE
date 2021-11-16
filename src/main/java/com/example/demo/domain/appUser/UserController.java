@@ -74,7 +74,6 @@ public class UserController {
         }catch (UserException e){
             return ResponseEntity.status(401).body(e.getMessage());
         }
-
     }
 
     /**
@@ -90,7 +89,7 @@ public class UserController {
         try {
             return ResponseEntity.ok(userService.createUser(newUser));
         }catch (InstanceAlreadyExistsException e){
-            return ResponseEntity.status(409).body("Username is already taken");
+            return ResponseEntity.status(409).body(e.getMessage());
         }catch (UserException e){
             return ResponseEntity.status(428).body(e.getMessage());
         }

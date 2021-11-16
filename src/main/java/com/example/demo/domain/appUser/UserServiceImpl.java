@@ -52,7 +52,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 //    This method is used for security authentication, use caution when changing this
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
 
-        User user = userRepository.findByUsername(username);
+        User user = getUser(username);
 
         if (user == null) {
             throw new UsernameNotFoundException("User not found");
@@ -89,7 +89,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
      */
     @Override
     public User saveUser(User user) throws InstanceAlreadyExistsException {
-        if (userRepository.findByUsername(user.getUsername()) != null) {
+        if (getUser(user.getUsername()) != null) {
             throw new InstanceAlreadyExistsException("User already exists");
         } else {
             return userRepository.save(user);
@@ -114,7 +114,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
      */
     @Override
     public void addRoleToUser(String username, String rolename) {
-        User user = userRepository.findByUsername(username);
+        User user =getUser(username);
         Role role = roleRepository.findByName(rolename);
         user.getRoles().add(role);
     }
@@ -141,7 +141,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     @Override
     public User findByUsername(String username, Principal principal) throws InstanceNotFoundException, UserException {
         if (hasAuthority(username, principal, "READ_ALL")) {
-            User user = userRepository.findByUsername(username);
+            User user = getUser(username);
             if (user != null) {
                 return user;
             }
@@ -159,7 +159,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
      * @return
      */
     private boolean hasAuthority(String username, Principal principal, String authority) {
-        User currentUser = userRepository.findByUsername(principal.getName());
+        User currentUser = getUser(principal.getName());
         if (currentUser.getUsername().equals(username) || currentUser.getRoles().contains(roleRepository.findByName("ADMIN")))
             return true;
         for (Role role : currentUser.getRoles()) {
@@ -194,7 +194,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
      */
     @Override
     public String deleteUser(String username, Principal principal) throws InstanceNotFoundException, UserException {
-        User user = userRepository.findByUsername(username);
+        User user = getUser(username);
         if (user != null) {
             if (hasAuthority(username, principal, "DELETE_ALL")) {
                 userRepository.deleteById(user.getId());
@@ -219,11 +219,11 @@ public class UserServiceImpl implements UserService, UserDetailsService {
      */
     @Override
     public User editUserByUsername(User editedUser, String username, Principal principal) throws InstanceNotFoundException, UserException, InstanceAlreadyExistsException {
-        User currentUser = userRepository.findByUsername(principal.getName());
-        User user = userRepository.findByUsername(username);
+        User currentUser = getUser(principal.getName());
+        User user = getUser(username);
         if (user == null)
             throw new InstanceNotFoundException("User " + username + " not found");
-        if (!username.equals(editedUser.getUsername()) && userRepository.findByUsername(editedUser.getUsername()) != null)
+        if (!username.equals(editedUser.getUsername()) && getUser(editedUser.getUsername()) != null)
             throw new InstanceAlreadyExistsException("Username " + username + " is already taken");
 
         if (!hasAuthority(username, principal, "UPDATE_ALL"))
@@ -255,7 +255,10 @@ public class UserServiceImpl implements UserService, UserDetailsService {
         user.setRoles(Set.of(roleRepository.findByName("USER")));
 
         if (!(user.getUsername().equals("") || user.getPassword().equals("") || user.getEmail().equals(""))) {
-            return saveUser(newUser);
+            if(getUser(user.getUsername()) == null){
+                return saveUser(newUser);
+            }
+            throw new InstanceAlreadyExistsException("Username is already taken");
         }
         throw new UserException("All fields are required");
 
