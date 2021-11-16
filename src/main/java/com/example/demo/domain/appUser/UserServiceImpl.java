@@ -20,6 +20,11 @@ import javax.transaction.Transactional;
 import java.security.Principal;
 import java.util.*;
 
+/**
+ * This is the service layer, which is between the controller
+ * and repository. This class implements from the Userservice and UserDetailsService
+ * which contains all the logic behind each endpoint.
+ */
 @Service
 @RequiredArgsConstructor
 @Transactional
@@ -33,7 +38,16 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     @Autowired
     private final AuthorityRepository authorityRepository;
 
-
+    /**
+     * This method returns User details:
+     * roles, authority, username,email and password
+     * that will be shown as soon as you display a user.
+     * If the user couldn't be found it will throw an
+     * exception.
+     * @param username is the unique login name of the user
+     * @return a user found by his username otherwise an exception
+     * @throws UsernameNotFoundException
+     */
     @Override
 //    This method is used for security authentication, use caution when changing this
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
@@ -64,6 +78,15 @@ public class UserServiceImpl implements UserService, UserDetailsService {
         return authorities;
     }
 
+
+    /**
+     * This method checks if the user with this username already
+     * exists, if not it will pass to the repository otherwise
+     * it will throw an exception.
+     * @param user is the user that you want to save in the db
+     * @return user, that you saved
+     * @throws InstanceAlreadyExistsException when username is already used
+     */
     @Override
     public User saveUser(User user) throws InstanceAlreadyExistsException {
         if (userRepository.findByUsername(user.getUsername()) != null) {
@@ -73,11 +96,22 @@ public class UserServiceImpl implements UserService, UserDetailsService {
         }
     }
 
+    /**
+     * This method passes the new role, that
+     * you want to add to the repository.
+     * @param role is the role you want to save
+     * @return the role that has been saved in the database
+     */
     @Override
     public Role saveRole(Role role) {
         return roleRepository.save(role);
     }
 
+    /**
+     * This method adds a role to the assigned user.
+     * @param username is the unique login name of the user
+     * @param rolename is the role you want to add to the user
+     */
     @Override
     public void addRoleToUser(String username, String rolename) {
         User user = userRepository.findByUsername(username);
@@ -85,11 +119,25 @@ public class UserServiceImpl implements UserService, UserDetailsService {
         user.getRoles().add(role);
     }
 
+    /**
+     * This method gets a user by his unique username.
+     * @param username is the unique login name of the user
+     * @return user that was found or null
+     */
     @Override
     public User getUser(String username) {
         return userRepository.findByUsername(username);
     }
 
+    /**
+     * This method returns a user only when the logged in user
+     * has the authority and the wanted user exists.
+     * @param username is the unique login name of the user
+     * @param principal  the current logged in user
+     * @return user the user that was found by the username
+     * @throws InstanceNotFoundException when the user couldn't be found
+     * @throws UserException when the user doesn't have the authority to get a user
+     */
     @Override
     public User findByUsername(String username, Principal principal) throws InstanceNotFoundException, UserException {
         if (hasAuthority(username, principal, "READ_ALL")) {
@@ -102,6 +150,14 @@ public class UserServiceImpl implements UserService, UserDetailsService {
         throw new UserException("You don't have the authority to display this user.");
     }
 
+    /**
+     * This methods checks if the logged in user has the authority, that
+     * we asked for in the parameter or if hi is an admin.
+     * @param username is the unique login name of the user
+     * @param principal is the current logged in user
+     * @param authority is the authority you want to check
+     * @return
+     */
     private boolean hasAuthority(String username, Principal principal, String authority) {
         User currentUser = userRepository.findByUsername(principal.getName());
         if (currentUser.getUsername().equals(username) || currentUser.getRoles().contains(roleRepository.findByName("ADMIN")))
@@ -113,6 +169,12 @@ public class UserServiceImpl implements UserService, UserDetailsService {
         return false;
     }
 
+    /**
+     * This methods returns all users, if there aren't any
+     * users it throws an exception.
+     * @return list of all users
+     * @throws UserException when the database is empty.
+     */
     @Override
     public List<User> getAllUsers() throws UserException {
         if (userRepository.findAll().isEmpty()) {
@@ -121,6 +183,15 @@ public class UserServiceImpl implements UserService, UserDetailsService {
         return userRepository.findAll();
     }
 
+    /**
+     * This method passes the user that you want to delete
+     * to the repository, which gets deleted.
+     * @param username is the unique login name of the user
+     * @param principal is the current logged in user
+     * @return a message that says which user has been deleted
+     * @throws InstanceNotFoundException when the user couldn't be found
+     * @throws UserException when the logged user doesn't have the authority
+     */
     @Override
     public String deleteUser(String username, Principal principal) throws InstanceNotFoundException, UserException {
         User user = userRepository.findByUsername(username);
@@ -134,6 +205,18 @@ public class UserServiceImpl implements UserService, UserDetailsService {
         throw new InstanceNotFoundException("User not found");
     }
 
+    /**
+     * This method edits/updates a user by his username, it
+     * also checks if the user exists and if the logged in user
+     * has the authority to do that.
+     * @param editedUser the user, that has been edited
+     * @param username the username of the user you want to edit
+     * @param principal is the current logged in user
+     * @return user with the edited attributes
+     * @throws InstanceNotFoundException
+     * @throws UserException
+     * @throws InstanceAlreadyExistsException
+     */
     @Override
     public User editUserByUsername(User editedUser, String username, Principal principal) throws InstanceNotFoundException, UserException, InstanceAlreadyExistsException {
         User currentUser = userRepository.findByUsername(principal.getName());
@@ -155,8 +238,14 @@ public class UserServiceImpl implements UserService, UserDetailsService {
         return userRepository.save(user);
     }
 
-
-
+    /**
+     * This method creates a new user and passes it to
+     * the repository.
+     * @param newUser is the new user you want to add
+     * @return the user that you added
+     * @throws UserException when the fields are empty
+     * @throws InstanceAlreadyExistsException when username already is been used
+     */
     @Override
     public User createUser(User newUser) throws UserException, InstanceAlreadyExistsException {
         User user = new User();

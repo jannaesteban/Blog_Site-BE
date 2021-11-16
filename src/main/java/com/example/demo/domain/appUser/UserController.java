@@ -12,19 +12,38 @@ import javax.management.InstanceNotFoundException;
 import java.util.Collection;
 import java.security.Principal;
 
-
+/**
+ * This is the Controller also known as the WebLayer
+ * which is connected to the Frontend. It allows HTTP-Requests
+ * such as the typical CRUD-Operations.
+ */
 @RestController
 @RequestMapping("/Blog-Site")
 @RequiredArgsConstructor
 public class UserController {
-    //    ADD YOUR ENDPOINT MAPPINGS HERE
+
     private final UserService userService;
 
+    /**
+     * This method gets a message
+     * when the user lands on the homepage
+     * it can be accessed by anyone
+     * no special authorities are required
+     * @return message for homepage
+     */
     @GetMapping("/")
     public ResponseEntity<String> HomeTest() {
-        return ResponseEntity.ok().body("Hello World");
+        return ResponseEntity.ok().body("Hello the Luca's");
     }
 
+    /**
+     * This is a GET-Endpoint through which all
+     * the users can be accessed and shown but
+     * only the admin has the authority
+     * to list everyone, for the rest such as User or
+     * Supervisor an Exception will be thrown
+     * @return all Users
+     */
     @GetMapping("/users")
     @PreAuthorize("hasAnyAuthority('READ_ALL')")
     public ResponseEntity getAllUsers() {
@@ -35,6 +54,16 @@ public class UserController {
         }
     }
 
+    /**
+     * This is a GET-Endpoint which allows to get a
+     * certain user by his username. The Admin can access
+     * anyone he likes and of course the user itself. Otherwise
+     * an HTTP-Status Code is shown if the user is not permissible
+     * to access a user's information
+     * @param username of person you want to get the information
+     * @param principal current user who's logged in
+     * @return certain user called by username and his information
+     */
     @GetMapping("/user/{username}")
     @PreAuthorize("hasAnyAuthority('READ_OWN', 'READ_ALL')")
     public ResponseEntity getUserByUsername(@PathVariable String username, Principal principal) {
@@ -48,6 +77,14 @@ public class UserController {
 
     }
 
+    /**
+     * This is the POST-Endpoint which allows to
+     * create a new user. For this certain information's
+     * are asked and again all Users are allowed to create
+     * a user, no authority is needed.
+     * @param newUser added to the database
+     * @return newUser who was created
+     */
     @PostMapping("/user")
     public ResponseEntity createUser(@RequestBody User newUser) {
         try {
@@ -59,6 +96,18 @@ public class UserController {
         }
     }
 
+    /**
+     * This is a PUT-Endpoint through which existing users can be
+     * updated, for this the admin has the authority to edit anyone and
+     * their role also but the user can edit his personal information
+     * except his role, if the searched user does not exist an HTTP-Status Code
+     * will occur otherwise a confirmation that the user has been successfully updated
+     * @param editedUser the newly edited user who's been updated in the database
+     * @param username the person, who's information need's to be edited
+     * @param principal current user who's logged in
+     * @return edited User
+     * @throws InstanceNotFoundException
+     */
     @PutMapping("/user/{username}")
     @PreAuthorize("hasAnyAuthority('UPDATE_OWN', 'UPDATE_OTHERS')")
     public ResponseEntity editUserById(@RequestBody User editedUser, @PathVariable String username, Principal principal) throws InstanceNotFoundException {
@@ -73,6 +122,15 @@ public class UserController {
         }
     }
 
+    /**
+     * This is the DELETE-Endpoint through which certain
+     * users can be deleted. It checks for the aurhority
+     * of the user and if he's not authorized an HTTP-Status
+     * Code is shown
+     * @param username person to delete
+     * @param principal current user who's logged in
+     * @return Confirmation that the user has been deleted
+     */
     @DeleteMapping("/user/{username}")
     @PreAuthorize("hasAnyAuthority('DELETE_OTHERS', 'DELETE_OWN')")
     public ResponseEntity deleteUser(@PathVariable String username, Principal principal) {
