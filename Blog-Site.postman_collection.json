@@ -1,0 +1,1112 @@
+{
+	"info": {
+		"_postman_id": "1f4a4b18-9ddf-4b86-9674-ccd024ee2825",
+		"name": "Blog-Site",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "admin",
+			"item": [
+				{
+					"name": "PUT",
+					"item": [
+						{
+							"name": "Performance",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Status code is 200\", function () {\r",
+											"    pm.response.to.have.status(200);\r",
+											"});\r",
+											""
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"auth": {
+									"type": "basic",
+									"basic": [
+										{
+											"key": "password",
+											"value": "widmer",
+											"type": "string"
+										},
+										{
+											"key": "username",
+											"value": "luca",
+											"type": "string"
+										}
+									]
+								},
+								"method": "GET",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"username\": \"james\",\r\n    \"email\": \"james.bond@outlook.com\",\r\n    \"password\": \"bond\",\r\n    \"roles\": [\r\n        {\r\n            \"id\": \"3b24cce9-1bda-493e-84d3-41cb35d539de\",\r\n            \"name\": \"USER\"\r\n        }\r\n    ]\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/Blog-Site/user/james",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"Blog-Site",
+										"user",
+										"james"
+									],
+									"query": [
+										{
+											"key": "username",
+											"value": "maria",
+											"disabled": true
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Updated user information",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"var responseJSON = pm.response.json();\r",
+											"pm.collectionVariables.set(\"user_admin\", responseJSON.username);\r",
+											"pm.collectionVariables.set(\"user_admin_pwd\", responseJSON.password);\r",
+											"pm.collectionVariables.set(\"luca.widmer@gmail.com\", responseJSON.email);\r",
+											"pm.test(\"Status code is 200\", function () {\r",
+											"    pm.response.to.have.status(200);\r",
+											"});\r",
+											"\r",
+											"pm.test(\"Changed user information: username, password, email\"), () =>{\r",
+											"    pm.expect(pm.response.json().username).to.equal(!responseJSON.username);\r",
+											"    pm.expect(pm.response.json().password).to.equal(!responseJSON.password);\r",
+											"    pm.expect(pm.response.json().email).to.equal(!responseJSON.email);\r",
+											"}\r",
+											"\r",
+											"pm.test(\"username luca changed into loris\", () =>{\r",
+											"    pm.expect(pm.response.json().username).to.equal(\"loris\")  \r",
+											"});\r",
+											"\r",
+											"pm.test(\"email changed into loris.hatt@gmail.com\", () =>{\r",
+											"    pm.expect(pm.response.json().email).to.equal(\"loris.hatt@gmail.com\")  \r",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"auth": {
+									"type": "basic",
+									"basic": [
+										{
+											"key": "password",
+											"value": "widmer",
+											"type": "string"
+										},
+										{
+											"key": "username",
+											"value": "luca",
+											"type": "string"
+										}
+									]
+								},
+								"method": "PUT",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"username\": \"loris\",\r\n    \"email\": \"loris.hatt@gmail.com\",\r\n    \"password\": \"hatt\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/Blog-Site/user/luca",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"Blog-Site",
+										"user",
+										"luca"
+									],
+									"query": [
+										{
+											"key": "username",
+											"value": "maria",
+											"disabled": true
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "User not found",
+							"event": [
+								{
+									"listen": "prerequest",
+									"script": {
+										"exec": [
+											"\r",
+											""
+										],
+										"type": "text/javascript"
+									}
+								},
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Status code is 404\", function () {\r",
+											"    pm.response.to.have.status(404);\r",
+											"});\r",
+											"\r",
+											""
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"auth": {
+									"type": "basic",
+									"basic": [
+										{
+											"key": "password",
+											"value": "widmer",
+											"type": "string"
+										},
+										{
+											"key": "username",
+											"value": "luca",
+											"type": "string"
+										}
+									]
+								},
+								"method": "PUT",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"username\": \"loris\",\r\n    \"email\": \"loris.hatt@gmail.com\",\r\n    \"password\": \"hatt\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/Blog-Site/user/luca",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"Blog-Site",
+										"user",
+										"luca"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Username spaces replaced with _",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"username loris changed into gian_loris\", () =>{\r",
+											"    pm.expect(pm.response.json().username).to.equal(\"gian_loris\")  \r",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"auth": {
+									"type": "basic",
+									"basic": [
+										{
+											"key": "password",
+											"value": "hatt",
+											"type": "string"
+										},
+										{
+											"key": "username",
+											"value": "loris",
+											"type": "string"
+										}
+									]
+								},
+								"method": "PUT",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"username\": \"gian loris\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/Blog-Site/user/loris",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"Blog-Site",
+										"user",
+										"loris"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Username is taken",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Status code is 409\", function () {\r",
+											"    pm.response.to.have.status(409);\r",
+											"});\r",
+											"pm.test(\"Username is still gian_loris\"), ()=>{\r",
+											"     pm.expect(pm.response.json().username).to.equal(\"gian_loris\");\r",
+											"}"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"auth": {
+									"type": "basic",
+									"basic": [
+										{
+											"key": "password",
+											"value": "hatt",
+											"type": "string"
+										},
+										{
+											"key": "username",
+											"value": "loris",
+											"type": "string"
+										}
+									]
+								},
+								"method": "PUT",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"username\": \"james\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/Blog-Site/user/gian_loris",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"Blog-Site",
+										"user",
+										"gian_loris"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "New Request",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Status code is 200\", function () {\r",
+											"    pm.response.to.have.status(200);\r",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"auth": {
+									"type": "basic",
+									"basic": [
+										{
+											"key": "password",
+											"value": "hatt",
+											"type": "string"
+										},
+										{
+											"key": "username",
+											"value": "gian_loris",
+											"type": "string"
+										}
+									]
+								},
+								"method": "PUT",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"username\": \"luca\",\r\n    \"password\": \"widmer\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/Blog-Site/user/gian_loris",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"Blog-Site",
+										"user",
+										"gian_loris"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "GET",
+					"item": [
+						{
+							"name": "All users information",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"const response = pm.response.json();\r",
+											"\r",
+											"pm.test(\"Users are retrievable\", function () {\r",
+											"\r",
+											"    if(response != null){\r",
+											"\r",
+											"        console.log(\"Test passed\")\r",
+											"\r",
+											"    } else {\r",
+											"\r",
+											"        console.log(\"Test not passed\")\r",
+											"\r",
+											"    }\r",
+											"\r",
+											"})"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"auth": {
+									"type": "basic",
+									"basic": [
+										{
+											"key": "password",
+											"value": "widmer",
+											"type": "string"
+										},
+										{
+											"key": "username",
+											"value": "luca",
+											"type": "string"
+										}
+									]
+								},
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}/Blog-Site/users",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"Blog-Site",
+										"users"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "certain user information",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"const responseJson = pm.response.json();\r",
+											"\r",
+											"pm.test(\"Retrieved user Lena\", () =>{\r",
+											"\r",
+											"  pm.expect(responseJson.username).to.eql(\"lena\");\r",
+											"\r",
+											"  pm.expect(responseJson.id).to.eql(\"54ac527e-60fd-4eb2-af38-48c737921a87\");\r",
+											"\r",
+											"})"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"auth": {
+									"type": "basic",
+									"basic": [
+										{
+											"key": "password",
+											"value": "widmer",
+											"type": "string"
+										},
+										{
+											"key": "username",
+											"value": "luca",
+											"type": "string"
+										}
+									]
+								},
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}/Blog-Site/user/lena",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"Blog-Site",
+										"user",
+										"lena"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "Post",
+					"item": [
+						{
+							"name": "new user",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Response must be valid and have a body\", () => {\r",
+											"\r",
+											"     pm.response.to.be.ok;\r",
+											"\r",
+											"     pm.response.to.be.withBody;\r",
+											"\r",
+											"     pm.response.to.be.json;\r",
+											"\r",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"auth": {
+									"type": "basic",
+									"basic": [
+										{
+											"key": "password",
+											"value": "widmer",
+											"type": "string"
+										},
+										{
+											"key": "username",
+											"value": "luca",
+											"type": "string"
+										}
+									]
+								},
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "\r\n{    \"username\": \"alisha\",    \"email\": \"alisha.khalid@gmail.com\",    \"password\": \"alisha123\"}\r\n\r\n",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/Blog-Site/user",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"Blog-Site",
+										"user"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				}
+			]
+		},
+		{
+			"name": "Supervisor",
+			"item": [
+				{
+					"name": "Get",
+					"item": [
+						{
+							"name": "Get certain user",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"const responseJson = pm.response.json();\r",
+											"pm.test(\"Get User Lena\", () => {\r",
+											"    pm.expect(responseJson.username).to.eql('lena');\r",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"auth": {
+									"type": "basic",
+									"basic": [
+										{
+											"key": "password",
+											"value": "martin",
+											"type": "string"
+										},
+										{
+											"key": "username",
+											"value": "meier",
+											"type": "string"
+										}
+									]
+								},
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "localhost:8080/Blog-Site/user/lena",
+									"host": [
+										"localhost"
+									],
+									"port": "8080",
+									"path": [
+										"Blog-Site",
+										"user",
+										"lena"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "admin information",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": null
+							},
+							"response": []
+						}
+					]
+				}
+			]
+		},
+		{
+			"name": "User",
+			"item": [
+				{
+					"name": "get",
+					"item": [
+						{
+							"name": "get own information",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"const responseJson = pm.response.json();\r",
+											"\r",
+											"\r",
+											"\r",
+											"pm.test(\"Response time is less than 100ms\", () => {\r",
+											"\r",
+											"  pm.expect(pm.response.responseTime).to.be.below(100);\r",
+											"\r",
+											"});\r",
+											"\r",
+											"\r",
+											"\r",
+											"pm.test(\"Retrieved information of itself\", () =>{\r",
+											"\r",
+											"  pm.expect(responseJson.username).to.eql(\"james\");\r",
+											"\r",
+											"  pm.expect(responseJson.username).to.be.a(\"string\");\r",
+											"\r",
+											"})\r",
+											"\r",
+											"\r",
+											"\r",
+											"pm.test(\"Id equals user\", () =>{\r",
+											"\r",
+											"    pm.expect(responseJson.id).to.eql(\"aaf19905-4ce3-4319-86e7-29852d82174e\")\r",
+											"\r",
+											"})"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"auth": {
+									"type": "basic",
+									"basic": [
+										{
+											"key": "password",
+											"value": "antonelli",
+											"type": "string"
+										},
+										{
+											"key": "username",
+											"value": "lena",
+											"type": "string"
+										}
+									]
+								},
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "localhost:8080/Blog-Site/user/james",
+									"host": [
+										"localhost"
+									],
+									"port": "8080",
+									"path": [
+										"Blog-Site",
+										"user",
+										"james"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "get someone elses information",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"User must be authorized\", () => {\r",
+											"\r",
+											"     pm.response.to.have.status(401);\r",
+											"\r",
+											"     \r",
+											"\r",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "localhost:8080/Blog-Site/user/lena",
+									"host": [
+										"localhost"
+									],
+									"port": "8080",
+									"path": [
+										"Blog-Site",
+										"user",
+										"lena"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				}
+			]
+		},
+		{
+			"name": "delete",
+			"item": [
+				{
+					"name": "Delete other user without permission",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 401\", function () {\r",
+									"    pm.response.to.have.status(401);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Body matches string \\\"You don't have the authority to delete the user (username)\\\"\", function () {\r",
+									"    pm.expect(pm.response.text()).to.include(\"You don't have the authority to delete the user\");\r",
+									"});\r",
+									"\r",
+									"pm.test(\"User no authority\", function() {\r",
+									"    pm.response.to.not.have.status(200);\r",
+									"});\r",
+									"\r",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "basic",
+							"basic": [
+								{
+									"key": "password",
+									"value": "dillard",
+									"type": "string"
+								},
+								{
+									"key": "username",
+									"value": "maria",
+									"type": "string"
+								}
+							]
+						},
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8080/Blog-Site/user/luca",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"Blog-Site",
+								"user",
+								"luca"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete no longer existing user",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 404 (error)\", function () {\r",
+									"    pm.response.to.have.status(404);\r",
+									"});\r",
+									"\r",
+									"\r",
+									"pm.test(\"Body matches string \\\"User not found\\\"\", function () {\r",
+									"    pm.expect(pm.response.text()).to.include(\"User not found\");\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Response is invalid\", function() {\r",
+									"    pm.response.to.not.have.status(200);\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "basic",
+							"basic": [
+								{
+									"key": "username",
+									"value": "luca",
+									"type": "string"
+								},
+								{
+									"key": "password",
+									"value": "widmer",
+									"type": "string"
+								}
+							]
+						},
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8080/Blog-Site/user/meier",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"Blog-Site",
+								"user",
+								"meier"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete other user with permission",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Body matches string (\\\"has been deleted\\\")\", function () {\r",
+									"    pm.expect(pm.response.text()).to.include(\"has been deleted\");\r",
+									"});\r",
+									"\r",
+									"pm.test(\"User has authority\", function() {\r",
+									"    pm.response.to.not.have.status(401);\r",
+									"});\r",
+									"\r",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "basic",
+							"basic": [
+								{
+									"key": "username",
+									"value": "luca",
+									"type": "string"
+								},
+								{
+									"key": "password",
+									"value": "widmer",
+									"type": "string"
+								}
+							]
+						},
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8080/Blog-Site/user/meier",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"Blog-Site",
+								"user",
+								"meier"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete own user",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Body matches string \\\"has been deleted\\\"\", function () {\r",
+									"    pm.expect(pm.response.text()).to.include(\"has been deleted\");\r",
+									"});\r",
+									"\r",
+									"pm.test(\"User has authority\", function() {\r",
+									"    pm.response.to.not.have.status(401);\r",
+									"});\r",
+									"\r",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "basic",
+							"basic": [
+								{
+									"key": "password",
+									"value": "bond",
+									"type": "string"
+								},
+								{
+									"key": "username",
+									"value": "james",
+									"type": "string"
+								}
+							]
+						},
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8080/Blog-Site/user/james",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"Blog-Site",
+								"user",
+								"james"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "User not found",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 404 (error)\", function () {\r",
+									"    pm.response.to.have.status(401);\r",
+									"});\r",
+									"\r",
+									"\r",
+									"pm.test(\"Response is invalid\", function() {\r",
+									"    pm.response.to.not.have.status(200);\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8080/Blog-Site/user/50c99d44-e81a-46f3-a9ef-e44f78c42755",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"Blog-Site",
+								"user",
+								"50c99d44-e81a-46f3-a9ef-e44f78c42755"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "baseUrl",
+			"value": "localhost:8080/Blog-Site/",
+			"disabled": true
+		},
+		{
+			"key": "user_admin_pwd",
+			"value": "widmer"
+		},
+		{
+			"key": "user_admin",
+			"value": "luca"
+		},
+		{
+			"key": "user_user_pwd",
+			"value": "bond"
+		},
+		{
+			"key": "user_user",
+			"value": "james"
+		},
+		{
+			"key": "user_supervisor_pwd",
+			"value": "martin"
+		},
+		{
+			"key": "user_supervisor",
+			"value": "meier"
+		},
+		{
+			"key": "luca.widmer@gmail.com",
+			"value": ""
+		}
+	]
+}
