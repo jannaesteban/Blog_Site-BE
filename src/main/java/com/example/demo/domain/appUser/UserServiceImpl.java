@@ -244,34 +244,29 @@ public class UserServiceImpl implements UserService, UserDetailsService {
      */
     @Override
 
-    public User editUserByUsername(User editedUser, String username, Principal principal) throws InstanceNotFoundException, UserException, InstanceAlreadyExistsException, AuthorizationServiceException {
+    public User editUserByUsername(User editedUser, String username, Principal principal) throws InstanceNotFoundException, InstanceAlreadyExistsException, AuthorizationServiceException {
         User currentUser = getUser(principal.getName());
         User user = getUser(username);
+        if (editedUser.getUsername() != null) user.setUsername(editedUser.getUsername().replace(" ", "_"));
         if (user == null) {
             log.error("User " + username + " not found");
             throw new InstanceNotFoundException("User " + username + " not found");
         }
-        if (!username.equals(editedUser.getUsername()) && getUser(editedUser.getUsername()) != null) {
+        if (!username.equals(user.getUsername()) && getUser(user.getUsername()) != null) {
             log.error("Can't updated user '" + username + "', because username is already assigned to another user");
-            throw new InstanceAlreadyExistsException("Username " + editedUser.getUsername() + " is already taken");
+            throw new InstanceAlreadyExistsException("Username " + user.getUsername() + " is already taken");
         }
         if (!isUserAuthorized(username, principal, "UPDATE_ALL")) {
             log.error("User " + principal.getName() + " doesn't has the authority to edit this user " + username);
             throw new AuthorizationServiceException("You don't have the authority to edit user " + username);
         }
 
-        if (editedUser.getUsername() != null) user.setUsername(editedUser.getUsername().replace(" ", "_"));
         if (editedUser.getEmail() != null) user.setEmail(editedUser.getEmail());
         if (editedUser.getPassword() != null)
             user.setPassword(new BCryptPasswordEncoder().encode(editedUser.getPassword()));
 
-        if (currentUser.getRoles().contains(roleRepository.findByName("ADMIN"))) user.setRoles(editedUser.getRoles());
+        if (currentUser.getRoles().contains(roleRepository.findByName("ADMIN")) && editedUser.getRoles() != null) user.setRoles(editedUser.getRoles());
 
-        if (!(user.getUsername().equals("") || user.getPassword().equals("") || user.getEmail().equals(""))) {
-        } else {
-            log.error("Couldn't process data, because not all fields are set");
-            throw new UserException("All fields are required");
-        }
         userRepository.save(user);
         log.info("User is updated in database");
         return user;
