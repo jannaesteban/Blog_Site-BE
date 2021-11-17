@@ -140,9 +140,6 @@ public class UserController {
             log.trace("ENTERED ENDPOINT PUT USER BY THE USERNAME");
             log.info("Updated user " + editedUser + " successfully");
             return ResponseEntity.ok().body(userService.editUserByUsername(editedUser, username, principal));
-        } catch (UserException e) {
-            log.error("Catched Exception: " + e.getMessage() + " and changed status to 428");
-            return ResponseEntity.status(428).body(e.getMessage());
         } catch (InstanceAlreadyExistsException e) {
             log.error("Catched Exception: " + e.getMessage() + " and changed status to 409");
             return ResponseEntity.status(409).body(e.getMessage());
