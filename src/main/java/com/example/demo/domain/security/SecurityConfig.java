@@ -2,7 +2,10 @@ package com.example.demo.domain.security;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Bean;
 import org.springframework.http.HttpMethod;
+import org.springframework.security.authentication.AuthenticationProvider;
+import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -20,9 +23,12 @@ import org.springframework.security.crypto.password.PasswordEncoder;
      private final UserDetailsService userDetailsService;
      private final PasswordEncoder passwordEncoder;
 
-     @Autowired
-     public void configureGlobal(AuthenticationManagerBuilder auth) throws Exception {
-                 auth.userDetailsService(userDetailsService).passwordEncoder(passwordEncoder);
+     @Bean
+     public AuthenticationProvider authenticationProvider (){
+         DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
+         provider.setUserDetailsService(userDetailsService);
+         provider.setPasswordEncoder(passwordEncoder);
+         return provider;
      }
 
      @Override
