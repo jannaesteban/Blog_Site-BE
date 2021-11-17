@@ -1,6 +1,7 @@
 package com.example.demo.domain.appUser;
 
 import com.example.demo.domain.role.Role;
+import com.sun.istack.NotNull;
 import lombok.*;
 
 import javax.persistence.*;
@@ -27,9 +28,12 @@ public class User {
      * Constraint makes sure that the username
      * is always unique
      */
+    @NotNull
     @Column(unique=true)
     private String username;
+    @NotNull
     private String email;
+    @NotNull
     private String password;
     @Column(name = "user_profile")
     private String userProfile;
