@@ -52,7 +52,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 //    This method is used for security authentication, use caution when changing this
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
 
-        User user = userRepository.findByUsername(username);
+        User user = getUser(username);
 
         if (user == null) {
             throw new UsernameNotFoundException("User not found");
@@ -89,7 +89,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
      */
     @Override
     public User saveUser(User user) throws InstanceAlreadyExistsException {
-        if (userRepository.findByUsername(user.getUsername()) != null) {
+        if (getUser(user.getUsername()) != null) {
             log.error("Couldn't save user with the username: "+user.getUsername()+" because username is already taken");
             throw new InstanceAlreadyExistsException("User already exists");
         } else {
@@ -117,7 +117,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
      */
     @Override
     public void addRoleToUser(String username, String rolename) {
-        User user = userRepository.findByUsername(username);
+        User user =getUser(username);
         Role role = roleRepository.findByName(rolename);
         log.info("Added to user "+username+" role: "+rolename);
         user.getRoles().add(role);
@@ -145,9 +145,9 @@ public class UserServiceImpl implements UserService, UserDetailsService {
      */
     @Override
     public User findByUsername(String username, Principal principal) throws InstanceNotFoundException, UserException {
-        if (hasAuthority(username, principal, "READ_ALL")) {
+        if (isUserAuthorized(username, principal, "READ_ALL")) {
             log.info("User "+principal.getName()+"has the authority needed.");
-            User user = userRepository.findByUsername(username);
+            User user = getUser(username);
             if (user != null) {
                 log.info("User "+username+"found");
                 return user;
@@ -167,8 +167,8 @@ public class UserServiceImpl implements UserService, UserDetailsService {
      * @param authority is the authority you want to check
      * @return
      */
-    private boolean hasAuthority(String username, Principal principal, String authority) {
-        User currentUser = userRepository.findByUsername(principal.getName());
+    private boolean isUserAuthorized(String username, Principal principal, String authority) {
+        User currentUser = getUser(principal.getName());
         if (currentUser.getUsername().equals(username) || currentUser.getRoles().contains(roleRepository.findByName("ADMIN")))
             return true;
         for (Role role : currentUser.getRoles()) {
@@ -205,9 +205,9 @@ public class UserServiceImpl implements UserService, UserDetailsService {
      */
     @Override
     public String deleteUser(String username, Principal principal) throws InstanceNotFoundException, UserException {
-        User user = userRepository.findByUsername(username);
+        User user = getUser(username);
         if (user != null) {
-            if (hasAuthority(username, principal, "DELETE_ALL")) {
+            if (isUserAuthorized(username, principal, "DELETE_ALL")) {
                 userRepository.deleteById(user.getId());
                 log.info("User"+username+"has been deleted");
                 return "User "+username+" has been deleted";
@@ -232,18 +232,19 @@ public class UserServiceImpl implements UserService, UserDetailsService {
      * @throws InstanceAlreadyExistsException
      */
     @Override
-    public User editUserByUsername(User editedUser, String username, Principal principal) throws InstanceNotFoundException, UserException, InstanceAlreadyExistsException, AuthorizationServiceException {
-        User currentUser = userRepository.findByUsername(principal.getName());
-        User user = userRepository.findByUsername(username);
+
+    public User editUserByUsername(User editedUser, String username, Principal principal) throws InstanceNotFoundException, UserException, InstanceAlreadyExistsException, AuthorizationServiceException  {
+        User currentUser = getUser(principal.getName());
+        User user = getUser(username);
         if (user == null) {
             log.error("User " + username + " not found");
             throw new InstanceNotFoundException("User " + username + " not found");
         }
-        if (!username.equals(editedUser.getUsername()) && userRepository.findByUsername(editedUser.getUsername()) != null) {
+        if (!username.equals(editedUser.getUsername()) && getUser(editedUser.getUsername()) != null){
             log.error("Can't updated username: " + username + ", because username is already assigned to another user");
             throw new InstanceAlreadyExistsException("Username " + username + " is already taken");
         }
-        if (!hasAuthority(username, principal, "UPDATE_ALL")) {
+        if (!isUserAuthorized(username, principal, "UPDATE_ALL")) {
             log.error("User "+principal.getName()+" doesn't has the authority to edit this user "+username);
             throw new AuthorizationServiceException("You don't have the authority to edit user " + username);
         }
@@ -280,9 +281,13 @@ public class UserServiceImpl implements UserService, UserDetailsService {
         user.setRoles(Set.of(roleRepository.findByName("USER")));
 
         if (!(user.getUsername().equals("") || user.getPassword().equals("") || user.getEmail().equals(""))) {
-            saveUser(newUser);
-            log.info("User has been added to database");
-            return newUser;
+            if(getUser(user.getUsername()) == null){
+                saveUser(newUser);
+                log.info("User has been added to database");
+                return newUser;
+            }
+            log.error("Username "+newUser.getUsername()+" already assigned to another user");
+            throw new InstanceAlreadyExistsException("Username is already taken");
         }
         log.error("Couldn't process data, because not all fields are set");
         throw new UserException("All fields are required");

@@ -89,7 +89,6 @@ public class UserController {
             log.error("You are not authorized to get " + username + "'s information");
             return ResponseEntity.status(401).body(e.getMessage());
         }
-
     }
 
     /**
@@ -107,7 +106,7 @@ public class UserController {
             return ResponseEntity.ok(userService.createUser(newUser));
         }catch (InstanceAlreadyExistsException e){
             log.error("Username already exists");
-            return ResponseEntity.status(409).body("Username is already taken");
+            return ResponseEntity.status(409).body(e.getMessage());
         }catch (UserException e){
             log.error("All fields are required!");
             return ResponseEntity.status(428).body(e.getMessage());
