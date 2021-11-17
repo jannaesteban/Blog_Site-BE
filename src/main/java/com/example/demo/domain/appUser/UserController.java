@@ -3,6 +3,8 @@ package com.example.demo.domain.appUser;
 
 import com.example.demo.domain.exception.UserException;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -24,6 +26,11 @@ public class UserController {
 
     private final UserService userService;
 
+    //framework slf4j
+    private static final Logger log = LoggerFactory.getLogger(UserController.class);
+
+
+
     /**
      * This method gets a message
      * when the user lands on the homepage
@@ -33,7 +40,9 @@ public class UserController {
      */
     @GetMapping("/")
     public ResponseEntity<String> HomeTest() {
+        log.info("Homepage successfully accessed");
         return ResponseEntity.ok().body("Hello the Luca's");
+
     }
 
     /**
@@ -48,8 +57,10 @@ public class UserController {
     @PreAuthorize("hasAnyAuthority('READ_ALL')")
     public ResponseEntity getAllUsers() {
         try {
+            log.info("Successfully retrieved all Users");
             return new ResponseEntity<Collection<User>>(userService.getAllUsers(), HttpStatus.OK);
         }catch (UserException e){
+            log.error("No user entries found, database must be empty");
             return ResponseEntity.status(200).body(e.getMessage());
         }
     }
@@ -68,10 +79,13 @@ public class UserController {
     @PreAuthorize("hasAnyAuthority('READ_OWN', 'READ_ALL')")
     public ResponseEntity getUserByUsername(@PathVariable String username, Principal principal) {
         try{
+            log.info("Found user " + username);
             return ResponseEntity.ok().body(userService.findByUsername(username, principal));
         }catch (InstanceNotFoundException e){
+            log.error("User not found");
             return ResponseEntity.status(404).body("User not found");
         }catch (UserException e){
+            log.error("You are not authorized to get " + username + "'s information");
             return ResponseEntity.status(401).body(e.getMessage());
         }
 
@@ -88,10 +102,13 @@ public class UserController {
     @PostMapping("/user")
     public ResponseEntity createUser(@RequestBody User newUser) {
         try {
+            log.info("Successfully created " + newUser);
             return ResponseEntity.ok(userService.createUser(newUser));
         }catch (InstanceAlreadyExistsException e){
+            log.error("Username already exists");
             return ResponseEntity.status(409).body("Username is already taken");
         }catch (UserException e){
+            log.error("All fields are required!");
             return ResponseEntity.status(428).body(e.getMessage());
         }
     }
@@ -112,12 +129,16 @@ public class UserController {
     @PreAuthorize("hasAnyAuthority('UPDATE_OWN', 'UPDATE_OTHERS')")
     public ResponseEntity editUserById(@RequestBody User editedUser, @PathVariable String username, Principal principal) throws InstanceNotFoundException {
         try {
+            log.info("Updated user " + editedUser + " successfully");
             return ResponseEntity.ok().body(userService.editUserByUsername(editedUser, username, principal));
         } catch (UserException e) {
+            log.error("Not authorized");
             return ResponseEntity.status(401).body(e.getMessage());
         } catch (InstanceAlreadyExistsException e) {
+            log.error("Conflict, Username already taken");
             return ResponseEntity.status(409).body(e.getMessage());
         } catch (InstanceNotFoundException e) {
+            log.error("User not found, can't update");
             return ResponseEntity.status(404).body(e.getMessage());
         }
     }
@@ -135,10 +156,13 @@ public class UserController {
     @PreAuthorize("hasAnyAuthority('DELETE_OTHERS', 'DELETE_OWN')")
     public ResponseEntity deleteUser(@PathVariable String username, Principal principal) {
         try {
+            log.info("Successfully deleted " + username);
             return ResponseEntity.ok().body(userService.deleteUser(username, principal));
         }catch (InstanceNotFoundException e){
+            log.error("User to delete not found");
             return ResponseEntity.status(404).body(e.getMessage());
         }catch (UserException e){
+            log.error("Not authorized to delete user");
             return ResponseEntity.status(401).body(e.getMessage());
         }
     }
