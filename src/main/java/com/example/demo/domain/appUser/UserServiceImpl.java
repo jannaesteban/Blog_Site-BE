@@ -14,6 +14,7 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import javax.management.InstanceAlreadyExistsException;
@@ -44,6 +45,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
      * that will be shown as soon as you display a user.
      * If the user couldn't be found it will throw an
      * exception.
+     *
      * @param username is the unique login name of the user
      * @return a user found by his username otherwise an exception
      * @throws UsernameNotFoundException
@@ -83,6 +85,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
      * This method checks if the user with this username already
      * exists, if not it will pass to the repository otherwise
      * it will throw an exception.
+     *
      * @param user is the user that you want to save in the db
      * @return user, that you saved
      * @throws InstanceAlreadyExistsException when username is already used
@@ -90,7 +93,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     @Override
     public User saveUser(User user) throws InstanceAlreadyExistsException {
         if (getUser(user.getUsername()) != null) {
-            log.error("Couldn't save user with the username: "+user.getUsername()+" because username is already taken");
+            log.error("Couldn't save user with the username: " + user.getUsername() + " because username is already taken");
             throw new InstanceAlreadyExistsException("User already exists");
         } else {
             log.info("User is saved in database");
@@ -101,6 +104,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     /**
      * This method passes the new role, that
      * you want to add to the repository.
+     *
      * @param role is the role you want to save
      * @return the role that has been saved in the database
      */
@@ -112,57 +116,61 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 
     /**
      * This method adds a role to the assigned user.
+     *
      * @param username is the unique login name of the user
      * @param rolename is the role you want to add to the user
      */
     @Override
     public void addRoleToUser(String username, String rolename) {
-        User user =getUser(username);
+        User user = getUser(username);
         Role role = roleRepository.findByName(rolename);
-        log.info("Added to user "+username+" role: "+rolename);
+        log.info("Added to user " + username + " role: " + rolename);
         user.getRoles().add(role);
     }
 
     /**
      * This method gets a user by his unique username.
+     *
      * @param username is the unique login name of the user
      * @return user that was found or null
      */
     @Override
     public User getUser(String username) {
-        log.info("Finding user in database by his username: "+username);
+        log.info("Finding user in database by his username: " + username);
         return userRepository.findByUsername(username);
     }
 
     /**
      * This method returns a user only when the logged in user
      * has the authority and the wanted user exists.
-     * @param username is the unique login name of the user
-     * @param principal  the current logged in user
+     *
+     * @param username  is the unique login name of the user
+     * @param principal the current logged in user
      * @return user the user that was found by the username
      * @throws InstanceNotFoundException when the user couldn't be found
-     * @throws UserException when the user doesn't have the authority to get a user
+     * @throws UserException             when the user doesn't have the authority to get a user
      */
     @Override
     public User findByUsername(String username, Principal principal) throws InstanceNotFoundException, UserException {
         if (isUserAuthorized(username, principal, "READ_ALL")) {
-            log.info("User "+principal.getName()+"has the authority needed.");
+            log.info("User " + principal.getName() + "has the authority needed.");
             User user = getUser(username);
             if (user != null) {
-                log.info("User "+username+"found");
+                log.info("User " + username + "found");
                 return user;
             }
             log.error("User " + username + " not found.");
             throw new InstanceNotFoundException("User " + username + " not found.");
         }
-        log.error("User " +principal.getName()+ " doesn't has the authority to get user's information of "+username);
+        log.error("User " + principal.getName() + " doesn't has the authority to get user's information of " + username);
         throw new UserException("You don't have the authority to display this user.");
     }
 
     /**
      * This methods checks if the logged in user has the authority, that
      * we asked for in the parameter or if hi is an admin.
-     * @param username is the unique login name of the user
+     *
+     * @param username  is the unique login name of the user
      * @param principal is the current logged in user
      * @param authority is the authority you want to check
      * @return
@@ -181,6 +189,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     /**
      * This methods returns all users, if there aren't any
      * users it throws an exception.
+     *
      * @return list of all users
      * @throws UserException when the database is empty.
      */
@@ -197,11 +206,12 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     /**
      * This method passes the user that you want to delete
      * to the repository, which gets deleted.
-     * @param username is the unique login name of the user
+     *
+     * @param username  is the unique login name of the user
      * @param principal is the current logged in user
      * @return a message that says which user has been deleted
      * @throws InstanceNotFoundException when the user couldn't be found
-     * @throws UserException when the logged user doesn't have the authority
+     * @throws UserException             when the logged user doesn't have the authority
      */
     @Override
     public String deleteUser(String username, Principal principal) throws InstanceNotFoundException, UserException {
@@ -209,13 +219,13 @@ public class UserServiceImpl implements UserService, UserDetailsService {
         if (user != null) {
             if (isUserAuthorized(username, principal, "DELETE_ALL")) {
                 userRepository.deleteById(user.getId());
-                log.info("User"+username+"has been deleted");
-                return "User "+username+" has been deleted";
+                log.info("User" + username + "has been deleted");
+                return "User " + username + " has been deleted";
             }
             log.error("Authority needed to delete user");
             throw new UserException("You don't have the authority to delete the user " + username);
         }
-        log.error("User with the username "+username+" not found");
+        log.error("User with the username " + username + " not found");
         throw new InstanceNotFoundException("User not found");
     }
 
@@ -223,9 +233,10 @@ public class UserServiceImpl implements UserService, UserDetailsService {
      * This method edits/updates a user by his username, it
      * also checks if the user exists and if the logged in user
      * has the authority to do that.
+     *
      * @param editedUser the user, that has been edited
-     * @param username the username of the user you want to edit
-     * @param principal is the current logged in user
+     * @param username   the username of the user you want to edit
+     * @param principal  is the current logged in user
      * @return user with the edited attributes
      * @throws InstanceNotFoundException
      * @throws UserException
@@ -233,29 +244,31 @@ public class UserServiceImpl implements UserService, UserDetailsService {
      */
     @Override
 
-    public User editUserByUsername(User editedUser, String username, Principal principal) throws InstanceNotFoundException, UserException, InstanceAlreadyExistsException, AuthorizationServiceException  {
+    public User editUserByUsername(User editedUser, String username, Principal principal) throws InstanceNotFoundException, UserException, InstanceAlreadyExistsException, AuthorizationServiceException {
         User currentUser = getUser(principal.getName());
         User user = getUser(username);
         if (user == null) {
             log.error("User " + username + " not found");
             throw new InstanceNotFoundException("User " + username + " not found");
         }
-        if (!username.equals(editedUser.getUsername()) && getUser(editedUser.getUsername()) != null){
-            log.error("Can't updated username: " + username + ", because username is already assigned to another user");
-            throw new InstanceAlreadyExistsException("Username " + username + " is already taken");
+        if (!username.equals(editedUser.getUsername()) && getUser(editedUser.getUsername()) != null) {
+            log.error("Can't updated user '" + username + "', because username is already assigned to another user");
+            throw new InstanceAlreadyExistsException("Username " + editedUser.getUsername() + " is already taken");
         }
         if (!isUserAuthorized(username, principal, "UPDATE_ALL")) {
-            log.error("User "+principal.getName()+" doesn't has the authority to edit this user "+username);
+            log.error("User " + principal.getName() + " doesn't has the authority to edit this user " + username);
             throw new AuthorizationServiceException("You don't have the authority to edit user " + username);
         }
-        if(!(user.getUsername().equals("") || user.getPassword().equals("") || user.getEmail().equals(""))) {
-            user.setEmail(editedUser.getEmail());
-            user.setPassword(editedUser.getPassword());
-            user.setUsername(editedUser.getUsername());
-            if (currentUser.getRoles().contains(roleRepository.findByName("ADMIN"))) {
-                user.setRoles(editedUser.getRoles());
-            }
-        }else {
+
+        if (editedUser.getUsername() != null) user.setUsername(editedUser.getUsername().replace(" ", "_"));
+        if (editedUser.getEmail() != null) user.setEmail(editedUser.getEmail());
+        if (editedUser.getPassword() != null)
+            user.setPassword(new BCryptPasswordEncoder().encode(editedUser.getPassword()));
+
+        if (currentUser.getRoles().contains(roleRepository.findByName("ADMIN"))) user.setRoles(editedUser.getRoles());
+
+        if (!(user.getUsername().equals("") || user.getPassword().equals("") || user.getEmail().equals(""))) {
+        } else {
             log.error("Couldn't process data, because not all fields are set");
             throw new UserException("All fields are required");
         }
@@ -267,26 +280,27 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     /**
      * This method creates a new user and passes it to
      * the repository.
+     *
      * @param newUser is the new user you want to add
      * @return the user that you added
-     * @throws UserException when the fields are empty
+     * @throws UserException                  when the fields are empty
      * @throws InstanceAlreadyExistsException when username already is been used
      */
     @Override
     public User createUser(User newUser) throws UserException, InstanceAlreadyExistsException {
-        User user = new User();
-        user.setEmail(newUser.getEmail().trim());
-        user.setPassword(newUser.getPassword().trim());
-        user.setUsername(newUser.getUsername().trim());
-        user.setRoles(Set.of(roleRepository.findByName("USER")));
+        if (!(newUser.getUsername().isEmpty() || newUser.getPassword().isEmpty() || newUser.getEmail().isEmpty())) {
+            User user = new User();
+            user.setEmail(newUser.getEmail().trim());
+            user.setPassword(new BCryptPasswordEncoder().encode(newUser.getPassword()));
+            user.setUsername(newUser.getUsername().replace(" ", "_"));
+            user.setRoles(Set.of(roleRepository.findByName("USER")));
 
-        if (!(user.getUsername().equals("") || user.getPassword().equals("") || user.getEmail().equals(""))) {
-            if(getUser(user.getUsername()) == null){
-                saveUser(newUser);
+            if (getUser(user.getUsername()) == null) {
+                saveUser(user);
                 log.info("User has been added to database");
-                return newUser;
+                return user;
             }
-            log.error("Username "+newUser.getUsername()+" already assigned to another user");
+            log.error("Username " + newUser.getUsername() + " already assigned to another user");
             throw new InstanceAlreadyExistsException("Username is already taken");
         }
         log.error("Couldn't process data, because not all fields are set");
