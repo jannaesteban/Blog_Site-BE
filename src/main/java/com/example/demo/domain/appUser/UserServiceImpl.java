@@ -152,7 +152,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
      */
     @Override
     public User findByUsername(String username, Principal principal) throws InstanceNotFoundException, UserException {
-        if (isUserAuthorized(username, principal, "READ_ALL")) {
+        if (hasAuthorization(username, principal, "READ_ALL")) {
             log.info("User " + principal.getName() + "has the authority needed.");
             User user = getUser(username);
             if (user != null) {
@@ -175,7 +175,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
      * @param authority is the authority you want to check
      * @return
      */
-    private boolean isUserAuthorized(String username, Principal principal, String authority) {
+    private boolean hasAuthorization(String username, Principal principal, String authority) {
         User currentUser = getUser(principal.getName());
         if (currentUser.getUsername().equals(username) || currentUser.getRoles().contains(roleRepository.findByName("ADMIN")))
             return true;
@@ -217,7 +217,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     public String deleteUser(String username, Principal principal) throws InstanceNotFoundException, UserException {
         User user = getUser(username);
         if (user != null) {
-            if (isUserAuthorized(username, principal, "DELETE_ALL")) {
+            if (hasAuthorization(username, principal, "DELETE_ALL")) {
                 userRepository.deleteById(user.getId());
                 log.info("User" + username + "has been deleted");
                 return "User " + username + " has been deleted";
@@ -256,7 +256,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
             log.error("Can't updated user '" + username + "', because username is already assigned to another user");
             throw new InstanceAlreadyExistsException("Username " + user.getUsername() + " is already taken");
         }
-        if (!isUserAuthorized(username, principal, "UPDATE_ALL")) {
+        if (!hasAuthorization(username, principal, "UPDATE_ALL")) {
             log.error("User " + principal.getName() + " doesn't has the authority to edit this user " + username);
             throw new AuthorizationServiceException("You don't have the authority to edit user " + username);
         }
