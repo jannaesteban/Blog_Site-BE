@@ -90,7 +90,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     @Override
     public User saveUser(User user) throws InstanceAlreadyExistsException {
         if (userRepository.findByUsername(user.getUsername()) != null) {
-            log.error("Couldn't save user with the username: "+username+" because username is already taken");
+            log.error("Couldn't save user with the username: "+user.getUsername()+" because username is already taken");
             throw new InstanceAlreadyExistsException("User already exists");
         } else {
             log.info("User is saved in database");
