@@ -1,6 +1,5 @@
 package com.example.demo.domain.security;
 
-
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
@@ -14,7 +13,10 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
- @EnableWebSecurity @RequiredArgsConstructor @EnableGlobalMethodSecurity(prePostEnabled = true)
+
+
+
+@EnableWebSecurity @RequiredArgsConstructor @EnableGlobalMethodSecurity(prePostEnabled = true)
 
  public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
@@ -34,11 +36,11 @@ import org.springframework.security.crypto.password.PasswordEncoder;
          http.httpBasic().and().csrf().disable()
                  .authorizeRequests()
                  .antMatchers("/Blog-Site").permitAll()
-                 .antMatchers(HttpMethod.GET,"/Blog-Site/users").hasAnyAuthority("READ_ALL")
-                 .antMatchers(HttpMethod.GET, "/Blog-Site/user/**").hasAnyAuthority("READ_ALL", "READ_OWN")
-                 .antMatchers(HttpMethod.PUT, "/Blog-Site/user/**").hasAnyAuthority("UPDATE_OTHERS", "UPDATE_OWN")
-                 .antMatchers(HttpMethod.DELETE, "/Blog-Site/user/**").hasAnyAuthority("DELETE_OTHERS", "DELETE_OWN")
-                 .antMatchers(HttpMethod.POST, "/Blog-Site/user/**").permitAll()
+                 .antMatchers(HttpMethod.GET,"/users").hasAnyAuthority("READ_ALL")
+                 .antMatchers(HttpMethod.GET, "/user/{username}").hasAnyAuthority("READ_ALL", "READ_OWN")
+                 .antMatchers(HttpMethod.PUT, "/user/{username}").hasAnyAuthority("UPDATE_OTHERS", "UPDATE_OWN")
+                 .antMatchers(HttpMethod.DELETE, "/user/{username}").hasAnyAuthority("DELETE_OTHERS", "DELETE_OWN")
+                 .antMatchers(HttpMethod.POST, "/user/").hasAnyAuthority("CREATE")
                  .and()
                  .formLogin();
      }
