@@ -27,9 +27,12 @@ public class UserController {
 
     private final UserService userService;
 
-    //framework slf4j
+    /**
+     * Using framework SLF4J
+     * Simple Logging Facade for Java
+     * for Logger
+     */
     private static final Logger log = LoggerFactory.getLogger(UserController.class);
-
 
 
     /**
@@ -41,6 +44,7 @@ public class UserController {
      */
     @GetMapping("/")
     public ResponseEntity<String> HomeTest() {
+        log.trace("ACCESSED HOMEPAGE");
         log.info("Homepage successfully accessed");
         return ResponseEntity.ok().body("Hello the Luca's");
 
@@ -50,7 +54,7 @@ public class UserController {
      * This is a GET-Endpoint through which all
      * the users can be accessed and shown but
      * only the admin has the authority
-     * to list everyone, for the rest such as User or
+     * to list everyone, for the remainder such as User or
      * Supervisor an Exception will be thrown
      * @return all Users
      */
@@ -58,10 +62,11 @@ public class UserController {
     @PreAuthorize("hasAnyAuthority('READ_ALL')")
     public ResponseEntity getAllUsers() {
         try {
+            log.trace("ENTERED ENDPOINT GET ALL USERS");
             log.info("Successfully retrieved all Users");
             return new ResponseEntity<Collection<User>>(userService.getAllUsers(), HttpStatus.OK);
         }catch (UserException e){
-            log.error("No user entries found, database must be empty");
+            log.error("Catched Exception: " + e.getMessage() + " and changed status to 200");
             return ResponseEntity.status(200).body(e.getMessage());
         }
     }
@@ -80,13 +85,14 @@ public class UserController {
     @PreAuthorize("hasAnyAuthority('READ_OWN', 'READ_ALL')")
     public ResponseEntity getUserByUsername(@PathVariable String username, Principal principal) {
         try{
+            log.trace("ENTERED ENDPOINT GET A USER BY USERNAME");
             log.info("Found user " + username);
             return ResponseEntity.ok().body(userService.findByUsername(username, principal));
         }catch (InstanceNotFoundException e){
-            log.error("User not found");
+            log.error("Catched Exception: " + e.getMessage() + " and changed status to 404");
             return ResponseEntity.status(404).body("User not found");
         }catch (UserException e){
-            log.error("You are not authorized to get " + username + "'s information");
+            log.error("Catched Exception: " + e.getMessage() + " and changed status to 401");
             return ResponseEntity.status(401).body(e.getMessage());
         }
     }
@@ -94,7 +100,7 @@ public class UserController {
     /**
      * This is the POST-Endpoint which allows to
      * create a new user. For this certain information's
-     * are asked and again all Users are allowed to create
+     * are required and again all Users are allowed to create
      * a user, no authority is needed.
      * @param newUser added to the database
      * @return newUser who was created
@@ -102,13 +108,14 @@ public class UserController {
     @PostMapping("/user")
     public ResponseEntity createUser(@RequestBody User newUser) {
         try {
+            log.trace("ENTERED ENDPOINT POST USER");
             log.info("Successfully created " + newUser);
             return ResponseEntity.ok(userService.createUser(newUser));
         }catch (InstanceAlreadyExistsException e){
-            log.error("Username already exists");
+            log.error("Catched Exception: " + e.getMessage() + " and changed status to 409");
             return ResponseEntity.status(409).body(e.getMessage());
         }catch (UserException e){
-            log.error("All fields are required!");
+            log.error("Catched Exception: " + e.getMessage() + " and changed status to 428");
             return ResponseEntity.status(428).body(e.getMessage());
         }
     }
@@ -116,9 +123,10 @@ public class UserController {
     /**
      * This is a PUT-Endpoint through which existing users can be
      * updated, for this the admin has the authority to edit anyone and
-     * their role also but the user can edit his personal information
+     * their role as well and the user can only edit his personal information
      * except his role, if the searched user does not exist an HTTP-Status Code
-     * will occur otherwise a confirmation that the user has been successfully updated
+     * will occur otherwise the user will receive a confirmation that the following
+     * user has been successfully updated
      * @param editedUser the newly edited user who's been updated in the database
      * @param username the person, who's information need's to be edited
      * @param principal current user who's logged in
@@ -127,18 +135,19 @@ public class UserController {
      */
     @PutMapping("/user/{username}")
     @PreAuthorize("hasAnyAuthority('UPDATE_OWN', 'UPDATE_OTHERS')")
-    public ResponseEntity editUserById(@RequestBody User editedUser, @PathVariable String username, Principal principal){
+    public ResponseEntity editUserByUsername(@RequestBody User editedUser, @PathVariable String username, Principal principal){
         try {
+            log.trace("ENTERED ENDPOINT PUT USER BY THE USERNAME");
             log.info("Updated user " + editedUser + " successfully");
             return ResponseEntity.ok().body(userService.editUserByUsername(editedUser, username, principal));
         } catch (UserException e) {
-            log.error("All fields are required!");
+            log.error("Catched Exception: " + e.getMessage() + " and changed status to 428");
             return ResponseEntity.status(428).body(e.getMessage());
         } catch (InstanceAlreadyExistsException e) {
-            log.error("Conflict, Username already taken");
+            log.error("Catched Exception: " + e.getMessage() + " and changed status to 409");
             return ResponseEntity.status(409).body(e.getMessage());
         } catch (InstanceNotFoundException e) {
-            log.error("User not found, can't update");
+            log.error("Catched Exception: " + e.getMessage() + " and changed status to 404");
             return ResponseEntity.status(404).body(e.getMessage());
         } catch (AuthorizationServiceException e){
             log.error("Not authorized");
@@ -148,9 +157,9 @@ public class UserController {
 
     /**
      * This is the DELETE-Endpoint through which certain
-     * users can be deleted. It checks for the aurhority
+     * users can be deleted. It checks for the authority
      * of the user and if he's not authorized an HTTP-Status
-     * Code is shown
+     * Code is shown that prints a user-friendly message
      * @param username person to delete
      * @param principal current user who's logged in
      * @return Confirmation that the user has been deleted
@@ -159,19 +168,15 @@ public class UserController {
     @PreAuthorize("hasAnyAuthority('DELETE_OTHERS', 'DELETE_OWN')")
     public ResponseEntity deleteUser(@PathVariable String username, Principal principal) {
         try {
+            log.trace("ENTERED ENDPOINT DELETE USER BY USERNAME");
             log.info("Successfully deleted " + username);
             return ResponseEntity.ok().body(userService.deleteUser(username, principal));
         }catch (InstanceNotFoundException e){
-            log.error("User to delete not found");
+            log.error("Catched Exception: " + e.getMessage() + " and changed status to 404");
             return ResponseEntity.status(404).body(e.getMessage());
         }catch (UserException e){
-            log.error("Not authorized to delete user");
+            log.error("Catched Exception: " + e.getMessage() + " and changed status to 401");
             return ResponseEntity.status(401).body(e.getMessage());
         }
     }
-
-
-
-
-
 }
