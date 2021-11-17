@@ -15,7 +15,6 @@ import org.springframework.stereotype.Service;
 
 import javax.management.InstanceAlreadyExistsException;
 import javax.management.InstanceNotFoundException;
-import javax.transaction.Transactional;
 
 import java.security.Principal;
 import java.util.*;
@@ -27,7 +26,6 @@ import java.util.*;
  */
 @Service
 @RequiredArgsConstructor
-@Transactional
 public class UserServiceImpl implements UserService, UserDetailsService {
 
 
@@ -87,6 +85,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
      * @return user, that you saved
      * @throws InstanceAlreadyExistsException when username is already used
      */
+    @Transactional()
     @Override
     public User saveUser(User user) throws InstanceAlreadyExistsException {
         if (getUser(user.getUsername()) != null) {
