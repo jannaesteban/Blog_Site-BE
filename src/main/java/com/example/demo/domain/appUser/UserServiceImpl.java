@@ -247,26 +247,28 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     public User editUserByUsername(User editedUser, String username, Principal principal) throws InstanceNotFoundException, InstanceAlreadyExistsException, AuthorizationServiceException {
         User currentUser = getUser(principal.getName());
         User user = getUser(username);
-        if (editedUser.getUsername() != null) user.setUsername(editedUser.getUsername().replace(" ", "_"));
+
         if (user == null) {
             log.error("User " + username + " not found");
             throw new InstanceNotFoundException("User " + username + " not found");
-        }
-        if (!username.equals(user.getUsername()) && getUser(user.getUsername()) != null) {
-            log.error("Can't updated user '" + username + "', because username is already assigned to another user");
-            throw new InstanceAlreadyExistsException("Username " + user.getUsername() + " is already taken");
-        }
-        if (!hasAuthorization(username, principal, "UPDATE_ALL")) {
-            log.error("User " + principal.getName() + " doesn't has the authority to edit this user " + username);
-            throw new AuthorizationServiceException("You don't have the authority to edit user " + username);
-        }
+        }else{
+            if (editedUser.getUsername() != null) user.setUsername(editedUser.getUsername().replace(" ", "_"));
+            if (!username.equals(user.getUsername()) && getUser(user.getUsername()) != null) {
+                log.error("Can't updated user '" + username + "', because username is already assigned to another user");
+                throw new InstanceAlreadyExistsException("Username " + user.getUsername() + " is already taken");
+            }
+            if (!hasAuthorization(username, principal, "UPDATE_ALL")) {
+                log.error("User " + principal.getName() + " doesn't has the authority to edit this user " + username);
+                throw new AuthorizationServiceException("You don't have the authority to edit user " + username);
+            }
 
-        if (editedUser.getEmail() != null) user.setEmail(editedUser.getEmail());
-        if (editedUser.getPassword() != null)
-            user.setPassword(new BCryptPasswordEncoder().encode(editedUser.getPassword()));
+            if (editedUser.getEmail() != null) user.setEmail(editedUser.getEmail());
+            if (editedUser.getPassword() != null)
+                user.setPassword(new BCryptPasswordEncoder().encode(editedUser.getPassword()));
 
-        if (currentUser.getRoles().contains(roleRepository.findByName("ADMIN")) && editedUser.getRoles() != null) user.setRoles(editedUser.getRoles());
+            if (currentUser.getRoles().contains(roleRepository.findByName("ADMIN")) && editedUser.getRoles() != null) user.setRoles(editedUser.getRoles());
 
+        }
         userRepository.save(user);
         log.info("User is updated in database");
         return user;
