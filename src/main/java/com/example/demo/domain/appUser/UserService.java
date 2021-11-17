@@ -3,6 +3,8 @@ package com.example.demo.domain.appUser;
 
 import com.example.demo.domain.exception.UserException;
 import com.example.demo.domain.role.Role;
+import org.springframework.security.access.AuthorizationServiceException;
+
 import javax.management.InstanceAlreadyExistsException;
 import javax.management.InstanceNotFoundException;
 import java.security.Principal;
@@ -17,6 +19,6 @@ public interface UserService {
     List<User> getAllUsers() throws UserException;
     String deleteUser(String username, Principal principal) throws InstanceNotFoundException, UserException;
     User createUser(User newUser)throws UserException, InstanceAlreadyExistsException;
-    User editUserByUsername(User editedUser, String username, Principal principal)throws InstanceNotFoundException,UserException, InstanceAlreadyExistsException;
+    User editUserByUsername(User editedUser, String username, Principal principal)throws InstanceNotFoundException,UserException, InstanceAlreadyExistsException, AuthorizationServiceException;
 
 }

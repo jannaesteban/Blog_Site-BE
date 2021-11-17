@@ -5,7 +5,10 @@ import com.example.demo.domain.exception.UserException;
 import com.example.demo.domain.role.Role;
 import com.example.demo.domain.role.RoleRepository;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.AuthorizationServiceException;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -27,8 +30,7 @@ import java.util.*;
 @Service
 @RequiredArgsConstructor
 public class UserServiceImpl implements UserService, UserDetailsService {
-
-
+    private static final Logger log = LoggerFactory.getLogger(UserServiceImpl.class);
     @Autowired
     private final UserRepository userRepository;
     @Autowired
@@ -85,12 +87,13 @@ public class UserServiceImpl implements UserService, UserDetailsService {
      * @return user, that you saved
      * @throws InstanceAlreadyExistsException when username is already used
      */
-    @Transactional()
     @Override
     public User saveUser(User user) throws InstanceAlreadyExistsException {
         if (userRepository.findByUsername(user.getUsername()) != null) {
+            log.error("Couldn't save user with the username: "+username+" because username is already taken");
             throw new InstanceAlreadyExistsException("User already exists");
         } else {
+            log.info("User is saved in database");
             return userRepository.save(user);
         }
     }
@@ -103,6 +106,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
      */
     @Override
     public Role saveRole(Role role) {
+        log.info("Role is saved in database");
         return roleRepository.save(role);
     }
 
@@ -115,6 +119,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     public void addRoleToUser(String username, String rolename) {
         User user = userRepository.findByUsername(username);
         Role role = roleRepository.findByName(rolename);
+        log.info("Added to user "+username+" role: "+rolename);
         user.getRoles().add(role);
     }
 
@@ -125,6 +130,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
      */
     @Override
     public User getUser(String username) {
+        log.info("Finding user in database by his username: "+username);
         return userRepository.findByUsername(username);
     }
 
@@ -140,12 +146,16 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     @Override
     public User findByUsername(String username, Principal principal) throws InstanceNotFoundException, UserException {
         if (hasAuthority(username, principal, "READ_ALL")) {
+            log.info("User "+principal.getName()+"has the authority needed.");
             User user = userRepository.findByUsername(username);
             if (user != null) {
+                log.info("User "+username+"found");
                 return user;
             }
+            log.error("User " + username + " not found.");
             throw new InstanceNotFoundException("User " + username + " not found.");
         }
+        log.error("User " +principal.getName()+ " doesn't has the authority to get user's information of "+username);
         throw new UserException("You don't have the authority to display this user.");
     }
 
@@ -177,8 +187,10 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     @Override
     public List<User> getAllUsers() throws UserException {
         if (userRepository.findAll().isEmpty()) {
+            log.error("No data in table users");
             throw new UserException("No users entries");
         }
+        log.info("Getting all users from Database");
         return userRepository.findAll();
     }
 
@@ -197,10 +209,13 @@ public class UserServiceImpl implements UserService, UserDetailsService {
         if (user != null) {
             if (hasAuthority(username, principal, "DELETE_ALL")) {
                 userRepository.deleteById(user.getId());
-                return "User " + username + " has been deleted";
+                log.info("User"+username+"has been deleted");
+                return "User "+username+" has been deleted";
             }
+            log.error("Authority needed to delete user");
             throw new UserException("You don't have the authority to delete the user " + username);
         }
+        log.error("User with the username "+username+" not found");
         throw new InstanceNotFoundException("User not found");
     }
 
@@ -217,24 +232,35 @@ public class UserServiceImpl implements UserService, UserDetailsService {
      * @throws InstanceAlreadyExistsException
      */
     @Override
-    public User editUserByUsername(User editedUser, String username, Principal principal) throws InstanceNotFoundException, UserException, InstanceAlreadyExistsException {
+    public User editUserByUsername(User editedUser, String username, Principal principal) throws InstanceNotFoundException, UserException, InstanceAlreadyExistsException, AuthorizationServiceException {
         User currentUser = userRepository.findByUsername(principal.getName());
         User user = userRepository.findByUsername(username);
-        if (user == null)
+        if (user == null) {
+            log.error("User " + username + " not found");
             throw new InstanceNotFoundException("User " + username + " not found");
-        if (!username.equals(editedUser.getUsername()) && userRepository.findByUsername(editedUser.getUsername()) != null)
-            throw new InstanceAlreadyExistsException("Username " + username + " is already taken");
-
-        if (!hasAuthority(username, principal, "UPDATE_ALL"))
-            throw new UserException("You don't have the authority to edit user " + username);
-
-        user.setEmail(editedUser.getEmail());
-        user.setPassword(editedUser.getPassword());
-        user.setUsername(editedUser.getUsername());
-        if (currentUser.getRoles().contains(roleRepository.findByName("ADMIN"))) {
-            user.setRoles(editedUser.getRoles());
         }
-        return userRepository.save(user);
+        if (!username.equals(editedUser.getUsername()) && userRepository.findByUsername(editedUser.getUsername()) != null) {
+            log.error("Can't updated username: " + username + ", because username is already assigned to another user");
+            throw new InstanceAlreadyExistsException("Username " + username + " is already taken");
+        }
+        if (!hasAuthority(username, principal, "UPDATE_ALL")) {
+            log.error("User "+principal.getName()+" doesn't has the authority to edit this user "+username);
+            throw new AuthorizationServiceException("You don't have the authority to edit user " + username);
+        }
+        if(!(user.getUsername().equals("") || user.getPassword().equals("") || user.getEmail().equals(""))) {
+            user.setEmail(editedUser.getEmail());
+            user.setPassword(editedUser.getPassword());
+            user.setUsername(editedUser.getUsername());
+            if (currentUser.getRoles().contains(roleRepository.findByName("ADMIN"))) {
+                user.setRoles(editedUser.getRoles());
+            }
+        }else {
+            log.error("Couldn't process data, because not all fields are set");
+            throw new UserException("All fields are required");
+        }
+        userRepository.save(user);
+        log.info("User is updated in database");
+        return user;
     }
 
     /**
@@ -254,8 +280,11 @@ public class UserServiceImpl implements UserService, UserDetailsService {
         user.setRoles(Set.of(roleRepository.findByName("USER")));
 
         if (!(user.getUsername().equals("") || user.getPassword().equals("") || user.getEmail().equals(""))) {
-            return saveUser(newUser);
+            saveUser(newUser);
+            log.info("User has been added to database");
+            return newUser;
         }
+        log.error("Couldn't process data, because not all fields are set");
         throw new UserException("All fields are required");
 
     }

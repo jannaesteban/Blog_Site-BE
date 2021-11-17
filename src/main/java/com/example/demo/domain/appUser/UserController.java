@@ -7,6 +7,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AuthorizationServiceException;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import javax.management.InstanceAlreadyExistsException;
@@ -127,19 +128,22 @@ public class UserController {
      */
     @PutMapping("/user/{username}")
     @PreAuthorize("hasAnyAuthority('UPDATE_OWN', 'UPDATE_OTHERS')")
-    public ResponseEntity editUserById(@RequestBody User editedUser, @PathVariable String username, Principal principal) throws InstanceNotFoundException {
+    public ResponseEntity editUserById(@RequestBody User editedUser, @PathVariable String username, Principal principal){
         try {
             log.info("Updated user " + editedUser + " successfully");
             return ResponseEntity.ok().body(userService.editUserByUsername(editedUser, username, principal));
         } catch (UserException e) {
-            log.error("Not authorized");
-            return ResponseEntity.status(401).body(e.getMessage());
+            log.error("All fields are required!");
+            return ResponseEntity.status(428).body(e.getMessage());
         } catch (InstanceAlreadyExistsException e) {
             log.error("Conflict, Username already taken");
             return ResponseEntity.status(409).body(e.getMessage());
         } catch (InstanceNotFoundException e) {
             log.error("User not found, can't update");
             return ResponseEntity.status(404).body(e.getMessage());
+        } catch (AuthorizationServiceException e){
+            log.error("Not authorized");
+            return ResponseEntity.status(401).body(e.getMessage());
         }
     }
 
